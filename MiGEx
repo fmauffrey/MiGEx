@@ -1,0 +1,77 @@
+#! /usr/bin/env python3
+
+import argparse
+import os
+import sys
+from subprocess import run
+from scripts.config import *
+
+""" Wrapper for the MiGEx pipeline """
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Microbial Genome Explorer (MiGEx) - A pipeline for microbial genome assembly and analysis from short reads.")
+
+    # Add subparser to allow the different commands
+    subparser = parser.add_subparsers(dest='command')
+    init = subparser.add_parser('init', description = "Generate the folder and configuration file.")
+    analysis = subparser.add_parser('analysis', description = "Run all the selected analyses.")
+    report = subparser.add_parser('report', description = "Generate the report from analysis results.")
+
+    # Arguments for init command
+    init.add_argument("-i", "--input", type=str, help="directory with fastq files. Files must be in the following format: ID.fastq"
+                             , dest="folder_fastq", required=True, metavar="dir")
+    init.add_argument("-o", "--output", type=str, help="directory to create for the run", dest="folder_run",
+                               required=True, metavar="dir")
+    
+    ####### Arguments for config command
+    analysis.add_argument("-i", "--input", type=str, help="directory with Nanopore fastq files. Files must be in the following format: ID.fastq"
+                             , dest="folder_nano", required=True, metavar="dir")
+    analysis.add_argument("-I", "--INPUT", type=str, help="directory with Illumina fastq files. Files must be in the following format: ID_R#.fastq"
+                             , dest="folder_ill", metavar="dir", default=None)
+    analysis.add_argument("-o", "--output", type=str, help="directory to create for the run", dest="run_dir",
+                               required=True, metavar="dir")
+
+    ######## Arguments for typing command
+    report.add_argument("-m", "--mode", type=str, help="mode for assembling genomes [long]",
+                                dest="mode", metavar="dir", default="long", choices=["long", "hybrid"])
+    report.add_argument("-d", "--dir", type=str, help="directory for the run (created with nanoplasm init)",
+                               dest="run_dir", required=True, metavar="dir")
+    report.add_argument("-t", "--thread", type=int, help="number of threads [1]", dest="thread",
+                               default=1, metavar="int")
+    report.add_argument("--quality_check", action="store_true", help="enable reads quality check [disabled]", dest="quality")
+    report.add_argument("--options", type=str, help="Snakemake options. Use as --options= and snakemake arguments between brackets", metavar="str", dest="options")
+
+    args = parser.parse_args()
+
+    if args.command not in ["init", "analysis", "report"]:
+        sys.exit("Commands available: init, analysis, report")
+
+    if args.command == "init":
+        if check_files(args.folder_fastq):
+            create_config(args.folder_fastq, args.folder_run)
+
+    elif args.command == "analysis":
+        cur_path = os.path.dirname(sys.argv[0])
+        
+        # basic command
+        command = ["snakemake",
+                   "--core", str(args.thread),
+                   "-s", f"{cur_path}/Snakefile",
+                   "-d", args.run_dir,
+                   "--use-singularity",
+                   "run"]
+        
+        # Add QC rules to trigger them
+        if args.quality:
+            command.append("quality_check")
+
+        # Add Snakemake options
+        if args.options:
+            command.append(args.options)
+
+        # Add mode. Must be at the end since everything behind --config will be interpreted as a config parameter
+        command.extend(["--config", f"mode={args.mode}"])
+
+        # Run the command
+        command_run = run(command)

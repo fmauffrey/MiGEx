@@ -1,0 +1,11 @@
+fastp:
+  qualified_quality_phred: 15
+  unqualified_percent_limit: 40
+  average_qual: 0
+  length_limit: 0
+unicycler:
+  mode: "normal"
+resfinder:
+  db: "data/resfinder_db"
+  id_threshold: 0.98
+  coverage_threshold: 0.6
