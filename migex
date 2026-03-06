@@ -31,9 +31,13 @@ if __name__ == "__main__":
     init.add_argument("-o", type=str, help="directory to create for the run", dest="folder_run", required=True, metavar="dir")
     
     # Arguments for qc command
-    qc.add_argument("-i", type=str, help="directory with fastq files.", dest="folder_run", required=True, metavar="dir")
+    qc.add_argument("-i", type=str, help="directory of the run.", dest="folder_run", required=True, metavar="dir")
     qc.add_argument("-t", type=int, help="number of threads [1]", dest="threads", metavar="int", default=1)
     
+    # Arguments for assembly command
+    assembly.add_argument("-i", type=str, help="directory of the run.", dest="folder_run", required=True, metavar="dir")
+    assembly.add_argument("-t", type=int, help="number of threads [1]", dest="threads", metavar="int", default=1)
+
     # Arguments for analysis command
     analysis.add_argument("-i", type=str, help="directory with Nanopore fastq files. Files must be in the following format: ID.fastq"
                              , dest="folder_nano", required=True, metavar="dir")
@@ -58,6 +62,15 @@ if __name__ == "__main__":
                         "--singularity-args", "--bind /home",
                         "qc"]
         
+        elif args.command == "assembly":  
+            command = ["snakemake",
+                        "--core", str(args.threads),
+                        "-s", f"{pipeline_path}/Snakefile",
+                        "-d", args.folder_run,
+                        "--use-singularity",
+                        "--singularity-args", "--bind /home",
+                        "assembly"]
+
         elif args.command == "analysis":    
             command = ["snakemake",
                     "--core", str(args.threads),

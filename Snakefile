@@ -8,10 +8,17 @@ input_path = config["path"]
 
 # General rules
 rule qc:
-    message: "Quality control and filtering of raw reads"
+    message: 
+        "Quality control and filtering of raw reads"
     input:
         expand("1-QC/FASTQC_raw/{sample}_1_fastqc.zip", sample=config["samples"]),
         expand("1-QC/FASTQC_filtered/{sample}_1.filtered_fastqc.zip", sample=config["samples"])
+
+rule assembly:
+    message: 
+        "Genome assembly from filtered reads"
+    input:
+        expand("2-Assembly/logs/{sample}_quast.log", sample=config["samples"])
 
 # Raw reads quality control
 rule fastqc_raw:
@@ -21,8 +28,10 @@ rule fastqc_raw:
     output:
         zip_1="1-QC/FASTQC_raw/{sample}_1_fastqc.zip",
         zip_2="1-QC/FASTQC_raw/{sample}_2_fastqc.zip"
-    container: "docker://staphb/fastqc"
-    log: "1-QC/logs/{sample}_fastqc_raw.log"
+    container: 
+        "docker://staphb/fastqc"
+    log: 
+        "1-QC/logs/{sample}_fastqc_raw.log"
     shell:
         """
         mkdir -p 1-QC/FASTQC_raw
@@ -44,8 +53,10 @@ rule fastp:
         unqualified_percent_limit=config["fastp"]["unqualified_percent_limit"],
         average_quality=config["fastp"]["average_quality"],
         length_limit=config["fastp"]["length_limit"]
-    container: "docker://staphb/fastp"
-    log: "1-QC/logs/{sample}_fastp.log"
+    container: 
+        "docker://staphb/fastp"
+    log: 
+        "1-QC/logs/{sample}_fastp.log"
     shell:
         """
         mkdir -p 1-QC/fastp
@@ -65,8 +76,10 @@ rule fastqc_filtered:
     output:
         zip_1="1-QC/FASTQC_filtered/{sample}_1.filtered_fastqc.zip",
         zip_2="1-QC/FASTQC_filtered/{sample}_2.filtered_fastqc.zip"
-    container: "docker://staphb/fastqc"
-    log: "1-QC/logs/{sample}_fastqc_filtered.log"
+    container: 
+        "docker://staphb/fastqc"
+    log: 
+        "1-QC/logs/{sample}_fastqc_filtered.log"
     shell:
         """
         mkdir -p 1-QC/FASTQC_filtered
@@ -74,5 +87,38 @@ rule fastqc_filtered:
         """
 
 # Genome assembly
+rule unicycler:
+    input:
+        reads_1="1-QC/fastp/{sample}_1.filtered.fastq.gz",
+        reads_2="1-QC/fastp/{sample}_2.filtered.fastq.gz"
+    output:
+        assembly="2-Assembly/unicycler/{sample}/assembly.fasta"
+    params:
+        mode=config["unicycler"]["mode"]
+    container: 
+        "docker://staphb/unicycler"
+    log: 
+        "2-Assembly/logs/{sample}_unicycler.log"
+    threads:
+        4
+    shell:
+        """
+        mkdir -p 2-Assembly/unicycler/{wildcards.sample}
+        unicycler -1 {input.reads_1} -2 {input.reads_2} \
+                  -o 2-Assembly/unicycler/{wildcards.sample} \
+                  --mode {params.mode} -t {threads} > {log} 2>&1
+        """
 
-# Pipeline information
+# Genome assembly quality control
+rule quast:
+    input:
+        assembly="2-Assembly/unicycler/{sample}/assembly.fasta"
+    output:
+        report="2-Assembly/quast/{sample}/report.txt"
+    container: 
+        "docker://staphb/quast"
+    shell:
+        """
+        mkdir -p 2-Assembly/quast/{wildcards.sample}
+        quast.py {input.assembly} -o 2-Assembly/quast/{wildcards.sample}
+        """
