@@ -1,0 +1,75 @@
+#! /usr/bin/env python3
+
+import argparse
+from inspect import Arguments
+import os
+import sys
+from subprocess import run
+from scripts.config import *
+
+""" Wrapper for the MiGEx pipeline """
+
+
+if __name__ == "__main__":
+    # Define variables
+    pipeline_path = os.path.dirname(sys.argv[0])
+
+    # Create argument parser
+    parser = argparse.ArgumentParser(description="Microbial Genome Explorer (MiGEx) - A pipeline for microbial genome assembly and analysis from short reads.")
+
+    # Add subparser to allow the different commands
+    subparser = parser.add_subparsers(dest='command')
+    init = subparser.add_parser('init', description = "Generate the folder and configuration file.")
+    qc = subparser.add_parser('qc', description = "Run quality control on fastq files.")
+    assembly = subparser.add_parser('assembly', description = "Assemble genomes from QC filtered reads.")
+    analysis = subparser.add_parser('analysis', description = "Run all the selected analyses on assembled genomes.")
+    report = subparser.add_parser('report', description = "Generate the report from analysis results.")
+
+    # Arguments for init command
+    init.add_argument("-i", type=str, help="directory with fastq files. Files must be in the following format: ID.fastq"
+                             , dest="folder_fastq", required=True, metavar="dir")
+    init.add_argument("-o", type=str, help="directory to create for the run", dest="folder_run", required=True, metavar="dir")
+    
+    # Arguments for qc command
+    qc.add_argument("-i", type=str, help="directory with fastq files.", dest="folder_run", required=True, metavar="dir")
+    qc.add_argument("-t", type=int, help="number of threads [1]", dest="threads", metavar="int", default=1)
+    
+    # Arguments for analysis command
+    analysis.add_argument("-i", type=str, help="directory with Nanopore fastq files. Files must be in the following format: ID.fastq"
+                             , dest="folder_nano", required=True, metavar="dir")
+    analysis.add_argument("-t", type=int, help="number of threads [1]", dest="threads", metavar="int", default=1)
+    
+    args = parser.parse_args()
+
+    if args.command not in ["init", "qc", "assembly", "analysis", "report"]:
+        sys.exit("Commands available: init, qc, assembly, analysis, report")
+
+    if args.command == "init":
+        if check_files(args.folder_fastq):
+            create_config(args.folder_fastq, args.folder_run)
+
+    else:
+        if args.command == "qc":  
+            command = ["snakemake",
+                        "--core", str(args.threads),
+                        "-s", f"{pipeline_path}/Snakefile",
+                        "-d", args.folder_run,
+                        "--use-singularity",
+                        "--singularity-args", "--bind /home",
+                        "qc"]
+        
+        elif args.command == "analysis":    
+            command = ["snakemake",
+                    "--core", str(args.threads),
+                    "-s", f"{pipeline_path}/Snakefile",
+                    "-d", args.folder_run,
+                    "--use-singularity",
+                    "--singularity-args", "--bind /home",
+                    "run"]
+            
+        # Add Snakemake options
+        #if args.options:
+        #    command.append(args.options)
+
+        # Run the command
+        command_run = run(command)

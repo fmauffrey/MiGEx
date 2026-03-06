@@ -1,0 +1,10 @@
+name: migex
+channels:
+  - default
+  - bioconda
+  - conda-forge
+dependencies:
+  - python=3.12
+  - snakemake-minimal
+  - pyyaml
+  - apptainer

@@ -2,6 +2,8 @@ import sys
 import os
 import yaml
 import shutil
+from pathlib import Path
+import re
 
 def check_files(folder):
     """ Verify if fastq files are present in the specified folder """
@@ -23,10 +25,23 @@ def create_config(folder_fastq, folder_run):
     # Load the configuration file template
     config_template = yaml.safe_load(open(f"{os.path.dirname(sys.argv[0])}/data/config_template.yaml", "r"))
 
-    # Define reads folders path and samples names and add the info to the config file
-    samples = [fastq.replace(".fastq", "") for fastq in os.listdir(folder_fastq)]
+    # Define samples detected in the good format
+    samples = list(set(re.sub(r'_[12]\.fastq\.gz$', '', f) for f in os.listdir(folder_fastq) if f.endswith(".fastq.gz")))
+
+    # Check if samples pairs are present
+    validated_samples = []
+    invalid_samples = []
+    for sample in samples:
+        if os.path.isfile(f"{folder_fastq}/{sample}_1.fastq.gz") and os.path.isfile(f"{folder_fastq}/{sample}_2.fastq.gz"):
+            validated_samples.append(sample)
+        else:
+            invalid_samples.append(sample)
+
+    # Define path to the input folder
     samples_folder_path = os.path.abspath(folder_fastq)
-    config_file = {"path": samples_folder_path, **config_template, "samples": samples}
+
+    # Write the config file with the new information
+    config_file = {"path": samples_folder_path, **config_template, "samples": validated_samples}
 
     # Save new configuration file
     try:
@@ -40,3 +55,8 @@ def create_config(folder_fastq, folder_run):
 
     with open(f"{folder_run}/config.yaml", "w") as output:
         yaml.safe_dump(config_file, output, sort_keys=False)
+
+    # Print final message
+    print(f"Configuration file created in {folder_run}/config.yaml")
+    print(f"Valid paired samples: {len(validated_samples)}")
+    print(f"Invalid samples: {len(invalid_samples)}")
