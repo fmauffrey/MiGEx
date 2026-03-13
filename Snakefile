@@ -12,13 +12,20 @@ rule qc:
         "Quality control and filtering of raw reads"
     input:
         expand("1-QC/FASTQC_raw/{sample}_1_fastqc.zip", sample=config["samples"]),
-        expand("1-QC/FASTQC_filtered/{sample}_1.filtered_fastqc.zip", sample=config["samples"])
+        expand("1-QC/FASTQC_filtered/{sample}_1.filtered_fastqc.zip", sample=config["samples"]),
+        "1-QC/qc_report.csv"
 
 rule assembly:
     message: 
         "Genome assembly from filtered reads"
     input:
         expand("2-Assembly/logs/{sample}_quast.log", sample=config["samples"])
+
+rule analysis:
+    message: 
+        "Analysis of assembled genomes"
+    input:
+        expand("3-Analysis/logs/{sample}_amrfinder.log", sample=config["samples"])
 
 # Raw reads quality control
 rule fastqc_raw:
@@ -86,6 +93,21 @@ rule fastqc_filtered:
         fastqc -o 1-QC/FASTQC_filtered {input.reads_1} {input.reads_2} 2> {log}
         """
 
+# qc_report
+rule qc_report:
+    input:
+        fastqc_raw_1="1-QC/FASTQC_raw/{sample}_1_fastqc.zip",
+        fastqc_raw_2="1-QC/FASTQC_raw/{sample}_2_fastqc.zip",
+        filter_json="1-QC/fastp/{sample}_fastp.json",
+        fastqc_filtered_1="1-QC/FASTQC_filtered/{sample}_1.filtered_fastqc.zip",
+        fastqc_filtered_2="1-QC/FASTQC_filtered/{sample}_2.filtered_fastqc.zip"
+    output:
+        report="1-QC/qc_report.csv"
+    shell:
+        """
+        scripts/qc_report.py {fastqc_raw_1} {fastqc_raw_2} {filter_json} {fastqc_filtered_1} {fastqc_filtered_2} {output.report}
+        """
+
 # Genome assembly
 rule unicycler:
     input:
@@ -121,4 +143,27 @@ rule quast:
         """
         mkdir -p 2-Assembly/quast/{wildcards.sample}
         quast.py {input.assembly} -o 2-Assembly/quast/{wildcards.sample}
+        """
+
+# Analyse AMR (AMRfinder)
+rule amrfinder:
+    input:
+        assembly="2-Assembly/unicycler/{sample}/assembly.fasta"
+    output:
+        report="3-Analysis/amrfinder/{sample}_amrfinder.tsv"
+    params:
+        organism= lambda wildcards: "" if config["amrfinder"]["organism"] == "" else f"--organism={config['amrfinder']['organism']}",
+        ident_min= config["amrfinder"]["ident_min"],
+        coverage_min= config["amrfinder"]["coverage_min"]
+    container:
+        "docker://staphb/ncbi-amrfinderplus"
+    log:
+        "3-Analysis/logs/{sample}_amrfinder.log"
+    threads:
+        4
+    shell:
+        """
+        mkdir -p 3-Analysis/amrfinder
+        amrfinder -n {input.assembly} -o {output.report} -c {params.coverage_min} -i {params.ident_min} --plus \
+            {params.organism} --threads {threads} > {log} 2>&1
         """

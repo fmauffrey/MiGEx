@@ -5,7 +5,7 @@ fastp:
   length_limit: 0
 unicycler:
   mode: "normal"
-resfinder:
-  db: "data/resfinder_db"
-  id_threshold: 0.98
-  coverage_threshold: 0.6
+amrfinder:
+  organism: ""
+  coverage_min: 0.5
+  ident_min: -1

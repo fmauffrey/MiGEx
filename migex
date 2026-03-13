@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
     # Arguments for analysis command
     analysis.add_argument("-i", type=str, help="directory with Nanopore fastq files. Files must be in the following format: ID.fastq"
-                             , dest="folder_nano", required=True, metavar="dir")
+                             , dest="folder_run", required=True, metavar="dir")
     analysis.add_argument("-t", type=int, help="number of threads [1]", dest="threads", metavar="int", default=1)
     
     args = parser.parse_args()
@@ -78,7 +78,7 @@ if __name__ == "__main__":
                     "-d", args.folder_run,
                     "--use-singularity",
                     "--singularity-args", "--bind /home",
-                    "run"]
+                    "analysis"]
             
         # Add Snakemake options
         #if args.options:
