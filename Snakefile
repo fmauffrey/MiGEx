@@ -28,7 +28,8 @@ rule analysis:
         expand("3-Analysis/logs/{sample}_amrfinder.log", sample=config["samples"]),
         expand("3-Analysis/logs/{sample}_bakta.log", sample=config["samples"]),
         expand("3-Analysis/logs/{sample}_abricate_virulence.log", sample=config["samples"]),
-        expand("3-Analysis/logs/{sample}_abricate_plasmids.log", sample=config["samples"])
+        expand("3-Analysis/logs/{sample}_abricate_plasmids.log", sample=config["samples"]),
+        expand("3-Analysis/logs/{sample}_mlst.log", sample=config["samples"])
 
 # Raw reads quality control
 rule fastqc_raw:
@@ -236,4 +237,22 @@ rule abricate_plasmids:
         abricate --db {params.db} --mincov {params.coverage} \
                  --minid {params.identity} --threads {threads} \
                  {input.assembly} > {output.report} 2> {log}
+        """
+
+# MLST strain typing mlst
+rule mlst:
+    input:
+        assembly="2-Assembly/unicycler/{sample}/assembly.fasta"
+    output:
+        report="3-Analysis/mlst/{sample}_mlst.tsv"
+    params:
+        species=config["mlst"]["species"]
+    container:
+        "docker://staphb/mlst"
+    log:
+        "3-Analysis/logs/{sample}_mlst.log"
+    shell:
+        """
+        mkdir -p 3-Analysis/mlst
+        mlst {input.assembly} --full > {output.report} 2> {log}
         """

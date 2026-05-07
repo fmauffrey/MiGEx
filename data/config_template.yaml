@@ -20,3 +20,5 @@ abricate:
     database: "plasmidfinder"
     minCoverage: 90
     minIdentity: 90
+mlst:
+  species: ""  # Leave blank for auto-detection, or specify e.g., "Escherichia coli"
