@@ -33,6 +33,8 @@ if __name__ == "__main__":
     
     # Arguments for download_db command
     download_db.add_argument("--mash", action="store_true", help="Download Mash reference database")
+    download_db.add_argument("--bakta", type=str, choices=["light", "full"], 
+                           metavar="VARIANT", help="Download Bakta database (light or full)")
     download_db.add_argument("--all", action="store_true", help="Download all available databases")
     
     # Arguments for qc command
@@ -62,8 +64,10 @@ if __name__ == "__main__":
     elif args.command == "download_db":
         if args.mash or args.all:
             download_mash_database(pipeline_path)
-        else:
-            print("Please specify --mash or --all to download databases")
+        if args.bakta:
+            download_bakta_database(pipeline_path, args.bakta)
+        if not (args.mash or args.bakta or args.all):
+            print("Please specify --mash, --bakta [light|full], or --all to download databases")
             sys.exit(1)
 
     else:

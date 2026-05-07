@@ -10,7 +10,7 @@ amrfinder:
   coverage_min: 0.5
   ident_min: -1
 bakta:
-  database: "data/bakta_db" # Adapt this path to your local bakta database
+  database: "data/baktadb" # Path to Bakta database. Default: data/baktadb_full or data/baktadb_light (if downloaded via migex download_db --bakta). Specify full path if using custom location.
 abricate:
   virulence:
     database: "vfdb"      # virulence factor database
