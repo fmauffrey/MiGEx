@@ -6,6 +6,10 @@ VERSION = "0.1.0"
 configfile: "config.yaml"
 input_path = config["path"]
 
+# Get the pipeline directory (parent of where Snakefile is)
+import os
+pipeline_path = os.path.dirname(os.path.abspath(workflow.snakefile))
+
 # General rules
 rule qc:
     message: 
@@ -29,7 +33,8 @@ rule analysis:
         expand("3-Analysis/logs/{sample}_bakta.log", sample=config["samples"]),
         expand("3-Analysis/logs/{sample}_abricate_virulence.log", sample=config["samples"]),
         expand("3-Analysis/logs/{sample}_abricate_plasmids.log", sample=config["samples"]),
-        expand("3-Analysis/logs/{sample}_mlst.log", sample=config["samples"])
+        expand("3-Analysis/logs/{sample}_mlst.log", sample=config["samples"]),
+        expand("3-Analysis/logs/{sample}_mash.log", sample=config["samples"])
 
 # Raw reads quality control
 rule fastqc_raw:
@@ -255,4 +260,23 @@ rule mlst:
         """
         mkdir -p 3-Analysis/mlst
         mlst {input.assembly} --full > {output.report} 2> {log}
+        """
+
+# Taxonomic confirmation via Mash
+rule mash:
+    input:
+        assembly="2-Assembly/unicycler/{sample}/assembly.fasta",
+        db=expand("{pipeline_path}/data/refseq.genomes.k21s1000.msh", pipeline_path=pipeline_path)
+    output:
+        distances="3-Analysis/mash/{sample}_mash_distances.txt"
+    container:
+        "docker://staphb/mash"
+    log:
+        "3-Analysis/logs/{sample}_mash.log"
+    threads:
+        4
+    shell:
+        """
+        mkdir -p 3-Analysis/mash
+        mash dist -p {threads} {input.db} {input.assembly} > {output.distances} 2> {log}
         """

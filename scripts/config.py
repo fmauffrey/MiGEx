@@ -4,6 +4,7 @@ import yaml
 import shutil
 from pathlib import Path
 import re
+import urllib.request
 
 def check_files(folder):
     """ Verify if fastq files are present in the specified folder """
@@ -60,3 +61,34 @@ def create_config(folder_fastq, folder_run):
     print(f"Configuration file created in {folder_run}/config.yaml")
     print(f"Valid paired samples: {len(validated_samples)}")
     print(f"Invalid samples: {len(invalid_samples)}")
+
+
+def download_mash_database(pipeline_path):
+    """ Download Mash reference database to data folder """
+    
+    # Create data directory if it doesn't exist
+    data_dir = os.path.join(pipeline_path, "data")
+    
+    # Database URL and output path
+    db_url = "https://gembox.cbcb.umd.edu/mash/refseq.genomes.k21s1000.msh"
+    db_path = os.path.join(data_dir, "refseq.genomes.k21s1000.msh")
+    
+    # Check if database already exists
+    if os.path.exists(db_path):
+        print(f"Mash database already exists at {db_path}")
+        return
+    
+    print(f"Downloading Mash reference database")
+    print(f"Destination: {db_path}")
+    
+    try:
+        def download_progress(block_num, block_size, total_size):
+            downloaded = block_num * block_size
+            percent = min(downloaded * 100 / total_size, 100)
+            print(f"Progress: {percent:.1f}% ({downloaded / (1024**3):.2f} GB / {total_size / (1024**3):.2f} GB)", end='\r')
+        
+        urllib.request.urlretrieve(db_url, db_path, download_progress)
+        print(f"\nMash database successfully downloaded to {db_path}")
+    except Exception as e:
+        print(f"Error downloading Mash database: {e}")
+        sys.exit(1)

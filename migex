@@ -20,6 +20,7 @@ if __name__ == "__main__":
     # Add subparser to allow the different commands
     subparser = parser.add_subparsers(dest='command')
     init = subparser.add_parser('init', description = "Generate the folder and configuration file.")
+    download_db = subparser.add_parser('download_db', description = "Download required databases for analysis.")
     qc = subparser.add_parser('qc', description = "Run quality control on fastq files.")
     assembly = subparser.add_parser('assembly', description = "Assemble genomes from QC filtered reads.")
     analysis = subparser.add_parser('analysis', description = "Run all the selected analyses on assembled genomes.")
@@ -29,6 +30,10 @@ if __name__ == "__main__":
     init.add_argument("-i", type=str, help="directory with fastq files. Files must be in the following format: ID.fastq"
                              , dest="folder_fastq", required=True, metavar="dir")
     init.add_argument("-o", type=str, help="directory to create for the run", dest="folder_run", required=True, metavar="dir")
+    
+    # Arguments for download_db command
+    download_db.add_argument("--mash", action="store_true", help="Download Mash reference database")
+    download_db.add_argument("--all", action="store_true", help="Download all available databases")
     
     # Arguments for qc command
     qc.add_argument("-i", type=str, help="directory of the run.", dest="folder_run", required=True, metavar="dir")
@@ -47,12 +52,19 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if args.command not in ["init", "qc", "assembly", "analysis", "report"]:
-        sys.exit("Commands available: init, qc, assembly, analysis, report")
+    if args.command not in ["init", "download_db", "qc", "assembly", "analysis", "report"]:
+        sys.exit("Commands available: init, download_db, qc, assembly, analysis, report")
 
     if args.command == "init":
         if check_files(args.folder_fastq):
             create_config(args.folder_fastq, args.folder_run)
+    
+    elif args.command == "download_db":
+        if args.mash or args.all:
+            download_mash_database(pipeline_path)
+        else:
+            print("Please specify --mash or --all to download databases")
+            sys.exit(1)
 
     else:
         if args.command == "qc":  
