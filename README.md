@@ -4,6 +4,10 @@
 
 MiGEx is a pipeline dedicated to microbial genome assembly and analysis. It aims at being versatile and complete. This project is still in development.
 
+## To install manually
+AMRfinderplus db
+Bakta db
+
 ## Input
 Gunzip files in _1.fastq.gz and _2.fastq.gz
 

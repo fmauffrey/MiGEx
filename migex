@@ -33,16 +33,18 @@ if __name__ == "__main__":
     # Arguments for qc command
     qc.add_argument("-i", type=str, help="directory of the run.", dest="folder_run", required=True, metavar="dir")
     qc.add_argument("-t", type=int, help="number of threads [1]", dest="threads", metavar="int", default=1)
-    
+    qc.add_argument("--options", type=str, help="Snakemake options", dest="options", metavar="str")
+
     # Arguments for assembly command
     assembly.add_argument("-i", type=str, help="directory of the run.", dest="folder_run", required=True, metavar="dir")
     assembly.add_argument("-t", type=int, help="number of threads [1]", dest="threads", metavar="int", default=1)
+    assembly.add_argument("--options", type=str, help="Snakemake options", dest="options", metavar="str")
 
     # Arguments for analysis command
-    analysis.add_argument("-i", type=str, help="directory with Nanopore fastq files. Files must be in the following format: ID.fastq"
-                             , dest="folder_run", required=True, metavar="dir")
+    analysis.add_argument("-i", type=str, help="directory of the run", dest="folder_run", required=True, metavar="dir")
     analysis.add_argument("-t", type=int, help="number of threads [1]", dest="threads", metavar="int", default=1)
-    
+    analysis.add_argument("--options", type=str, help="Snakemake options", dest="options", metavar="str")
+
     args = parser.parse_args()
 
     if args.command not in ["init", "qc", "assembly", "analysis", "report"]:
@@ -81,8 +83,8 @@ if __name__ == "__main__":
                     "analysis"]
             
         # Add Snakemake options
-        #if args.options:
-        #    command.append(args.options)
+        if args.options:
+            command.extend(args.options.split())
 
         # Run the command
         command_run = run(command)

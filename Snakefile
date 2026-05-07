@@ -25,7 +25,8 @@ rule analysis:
     message: 
         "Analysis of assembled genomes"
     input:
-        expand("3-Analysis/logs/{sample}_amrfinder.log", sample=config["samples"])
+        expand("3-Analysis/logs/{sample}_amrfinder.log", sample=config["samples"]),
+        expand("3-Analysis/logs/{sample}_bakta.log", sample=config["samples"])
 
 # Raw reads quality control
 rule fastqc_raw:
@@ -166,4 +167,23 @@ rule amrfinder:
         mkdir -p 3-Analysis/amrfinder
         amrfinder -n {input.assembly} -o {output.report} -c {params.coverage_min} -i {params.ident_min} --plus \
             {params.organism} --threads {threads} > {log} 2>&1
+        """
+
+# Annotation Bakta
+rule bakta:
+    input:
+        assembly="2-Assembly/unicycler/{sample}/assembly.fasta"
+    output:
+        gff="3-Analysis/bakta/{sample}/{sample}.gff3"
+    params:
+        database=config["bakta"]["database"]
+    log:
+        "3-Analysis/logs/{sample}_bakta.log"
+    threads:
+        4
+    shell:
+        """
+        mkdir -p 3-Analysis/bakta/{wildcards.sample}
+        bakta --output 3-Analysis/bakta/{wildcards.sample} --db {params.database} \
+              --prefix {wildcards.sample} --threads {threads} {input.assembly} --force > {log} 2>&1
         """
