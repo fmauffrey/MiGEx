@@ -26,7 +26,9 @@ rule analysis:
         "Analysis of assembled genomes"
     input:
         expand("3-Analysis/logs/{sample}_amrfinder.log", sample=config["samples"]),
-        expand("3-Analysis/logs/{sample}_bakta.log", sample=config["samples"])
+        expand("3-Analysis/logs/{sample}_bakta.log", sample=config["samples"]),
+        expand("3-Analysis/logs/{sample}_abricate_virulence.log", sample=config["samples"]),
+        expand("3-Analysis/logs/{sample}_abricate_plasmids.log", sample=config["samples"])
 
 # Raw reads quality control
 rule fastqc_raw:
@@ -186,4 +188,52 @@ rule bakta:
         mkdir -p 3-Analysis/bakta/{wildcards.sample}
         bakta --output 3-Analysis/bakta/{wildcards.sample} --db {params.database} \
               --prefix {wildcards.sample} --threads {threads} {input.assembly} --force > {log} 2>&1
+        """
+
+# Virulence factors detection Abricate
+rule abricate_virulence:
+    input:
+        assembly="2-Assembly/unicycler/{sample}/assembly.fasta"
+    output:
+        report="3-Analysis/abricate/{sample}_virulence.tsv"
+    params:
+        db=config["abricate"]["virulence"]["database"],
+        coverage=config["abricate"]["virulence"]["minCoverage"],
+        identity=config["abricate"]["virulence"]["minIdentity"]
+    container:
+        "docker://staphb/abricate"
+    log:
+        "3-Analysis/logs/{sample}_abricate_virulence.log"
+    threads:
+        4
+    shell:
+        """
+        mkdir -p 3-Analysis/abricate
+        abricate --db {params.db} --mincov {params.coverage} \
+                 --minid {params.identity} --threads {threads} \
+                 {input.assembly} > {output.report} 2> {log}
+        """
+
+# Plasmid detection Abricate
+rule abricate_plasmids:
+    input:
+        assembly="2-Assembly/unicycler/{sample}/assembly.fasta"
+    output:
+        report="3-Analysis/abricate/{sample}_plasmids.tsv"
+    params:
+        db=config["abricate"]["plasmids"]["database"],
+        coverage=config["abricate"]["plasmids"]["minCoverage"],
+        identity=config["abricate"]["plasmids"]["minIdentity"]
+    container:
+        "docker://staphb/abricate"
+    log:
+        "3-Analysis/logs/{sample}_abricate_plasmids.log"
+    threads:
+        4
+    shell:
+        """
+        mkdir -p 3-Analysis/abricate
+        abricate --db {params.db} --mincov {params.coverage} \
+                 --minid {params.identity} --threads {threads} \
+                 {input.assembly} > {output.report} 2> {log}
         """

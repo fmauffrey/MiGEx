@@ -11,3 +11,12 @@ amrfinder:
   ident_min: -1
 bakta:
   database: "data/bakta_db" # Adapt this path to your local bakta database
+abricate:
+  virulence:
+    database: "vfdb"      # virulence factor database
+    minCoverage: 80       # minimum coverage %
+    minIdentity: 80       # minimum identity %
+  plasmids:
+    database: "plasmidfinder"
+    minCoverage: 90
+    minIdentity: 90
