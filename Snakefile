@@ -34,7 +34,8 @@ rule analysis:
         expand("3-Analysis/logs/{sample}_abricate_virulence.log", sample=config["samples"]),
         expand("3-Analysis/logs/{sample}_abricate_plasmids.log", sample=config["samples"]),
         expand("3-Analysis/logs/{sample}_mlst.log", sample=config["samples"]),
-        expand("3-Analysis/logs/{sample}_mash.log", sample=config["samples"])
+        expand("3-Analysis/logs/{sample}_mash.log", sample=config["samples"]),
+        expand("3-Analysis/coverage/{sample}_samtools/coverage.txt", sample=config["samples"])
 
 # Raw reads quality control
 rule fastqc_raw:
@@ -279,4 +280,91 @@ rule mash:
         """
         mkdir -p 3-Analysis/mash
         mash dist -p {threads} {input.db} {input.assembly} > {output.distances} 2> {log}
+        """
+
+# Index assembly with bowtie2
+rule bowtie2_index:
+    input:
+        assembly="2-Assembly/unicycler/{sample}/assembly.fasta"
+    output:
+        idx1="2-Assembly/unicycler/{sample}/assembly.1.bt2",
+        idx2="2-Assembly/unicycler/{sample}/assembly.2.bt2",
+        idx3="2-Assembly/unicycler/{sample}/assembly.3.bt2",
+        idx4="2-Assembly/unicycler/{sample}/assembly.4.bt2",
+        revIdx1="2-Assembly/unicycler/{sample}/assembly.rev.1.bt2",
+        revIdx2="2-Assembly/unicycler/{sample}/assembly.rev.2.bt2"
+    container:
+        "docker://staphb/bowtie2"
+    log:
+        "3-Analysis/logs/{sample}_bowtie2_index.log"
+    shell:
+        """
+        bowtie2-build {input.assembly} 2-Assembly/unicycler/{wildcards.sample}/assembly > {log} 2>&1
+        """
+
+# Map filtered reads to assembly with bowtie2
+rule bowtie2_map:
+    input:
+        reads_1="1-QC/fastp/{sample}_1.filtered.fastq.gz",
+        reads_2="1-QC/fastp/{sample}_2.filtered.fastq.gz",
+        idx1="2-Assembly/unicycler/{sample}/assembly.1.bt2",
+        idx2="2-Assembly/unicycler/{sample}/assembly.2.bt2",
+        idx3="2-Assembly/unicycler/{sample}/assembly.3.bt2",
+        idx4="2-Assembly/unicycler/{sample}/assembly.4.bt2",
+        revIdx1="2-Assembly/unicycler/{sample}/assembly.rev.1.bt2",
+        revIdx2="2-Assembly/unicycler/{sample}/assembly.rev.2.bt2"
+    output:
+        sam="3-Analysis/coverage/{sample}_mapped.sam"
+    container:
+        "docker://staphb/bowtie2"
+    log:
+        "3-Analysis/logs/{sample}_bowtie2_map.log"
+    threads:
+        4
+    shell:
+        """
+        mkdir -p 3-Analysis/coverage
+        bowtie2 -x 2-Assembly/unicycler/{wildcards.sample}/assembly \
+                -1 {input.reads_1} -2 {input.reads_2} \
+                -p {threads} -S {output.sam} > {log} 2>&1
+        """
+
+# Convert SAM to sorted BAM
+rule samtools_sort:
+    input:
+        sam="3-Analysis/coverage/{sample}_mapped.sam"
+    output:
+        bam="3-Analysis/coverage/{sample}_mapped.sorted.bam",
+        bai="3-Analysis/coverage/{sample}_mapped.sorted.bam.bai"
+    params:
+        quality=config["samtools"]["min_quality"]
+    container:
+        "docker://staphb/samtools"
+    log:
+        "3-Analysis/logs/{sample}_samtools_sort.log"
+    threads:
+        2
+    shell:
+        """
+        samtools view -q {params.quality} -b {input.sam} | \
+        samtools sort -@ {threads} -o {output.bam} - && \
+        samtools index {output.bam} {output.bai} 2> {log}
+        rm {input.sam}
+        """
+
+# Generate coverage report with samtools
+rule samtools_coverage:
+    input:
+        bam="3-Analysis/coverage/{sample}_mapped.sorted.bam",
+        bai="3-Analysis/coverage/{sample}_mapped.sorted.bam.bai"
+    output:
+        html="3-Analysis/coverage/{sample}_samtools/coverage.txt"
+    container:
+        "docker://staphb/samtools"
+    log:
+        "3-Analysis/logs/{sample}_samtools.log"
+    shell:
+        """
+        mkdir -p 3-Analysis/coverage/{wildcards.sample}_samtools
+        samtools coverage -o 3-Analysis/coverage/{wildcards.sample}_samtools/coverage.txt {input.bam} > {log} 2>&1
         """
