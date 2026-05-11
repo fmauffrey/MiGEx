@@ -333,8 +333,8 @@ def create_pdf_report(results_dir, sample, output_dir):
         compact_heading = ParagraphStyle(
             'CompactHeading',
             parent=styles['Heading4'],
-            fontSize=10,
-            spaceAfter=4,
+            fontSize=12,
+            spaceAfter=6,
             spaceBefore=6
         )
         
