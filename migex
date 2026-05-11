@@ -52,6 +52,10 @@ if __name__ == "__main__":
     analysis.add_argument("-t", type=int, help="number of threads [1]", dest="threads", metavar="int", default=1)
     analysis.add_argument("--options", type=str, help="Snakemake options", dest="options", metavar="str")
 
+    # Arguments for report command
+    report.add_argument("-i", type=str, help="directory of the run", dest="folder_run", required=True, metavar="dir")
+    report.add_argument("--options", type=str, help="Snakemake options", dest="options", metavar="str")
+
     args = parser.parse_args()
 
     if args.command not in ["init", "download_db", "qc", "assembly", "analysis", "report"]:
@@ -97,6 +101,15 @@ if __name__ == "__main__":
                     "--use-singularity",
                     "--singularity-args", "--bind /home",
                     "analysis"]
+        
+        elif args.command == "report":
+            command = ["snakemake",
+                    "-s", f"{pipeline_path}/Snakefile",
+                    "-d", args.folder_run,
+                    "--cores", "1",
+                    "--use-singularity",
+                    "--singularity-args", "--bind /home",
+                    "report"]
             
         # Add Snakemake options
         if args.options:

@@ -37,6 +37,13 @@ rule analysis:
         expand("3-Analysis/logs/{sample}_mash.log", sample=config["samples"]),
         expand("3-Analysis/coverage/{sample}_samtools/coverage.txt", sample=config["samples"])
 
+# Report master rule
+rule report:
+    message:
+        "Generate PDF reports for all samples"
+    input:
+        expand("4-Reports/{sample}_report.pdf", sample=config["samples"])
+
 # Raw reads quality control
 rule fastqc_raw:
     input:
@@ -367,4 +374,23 @@ rule samtools_coverage:
         """
         mkdir -p 3-Analysis/coverage/{wildcards.sample}_samtools
         samtools coverage -o 3-Analysis/coverage/{wildcards.sample}_samtools/coverage.txt {input.bam} > {log} 2>&1
+        """
+
+# Generate PDF report
+rule generate_report:
+    input:
+        amrfinder="3-Analysis/amrfinder/{sample}_amrfinder.tsv",
+        bakta_gff="3-Analysis/bakta/{sample}/{sample}.gff3",
+        virulence="3-Analysis/abricate/{sample}_virulence.tsv",
+        plasmids="3-Analysis/abricate/{sample}_plasmids.tsv",
+        mlst="3-Analysis/mlst/{sample}_mlst.tsv",
+        mash="3-Analysis/mash/{sample}_mash_distances.txt",
+        quast="2-Assembly/quast/{sample}/report.tsv",
+        coverage_bam="3-Analysis/coverage/{sample}_mapped.sorted.bam"
+    output:
+        pdf="4-Reports/{sample}_report.pdf"
+    shell:
+        """
+        mkdir -p 4-Reports
+        python3 {pipeline_path}/scripts/generate_report.py . {wildcards.sample} 4-Reports
         """
