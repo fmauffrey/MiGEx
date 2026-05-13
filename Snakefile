@@ -379,6 +379,8 @@ rule samtools_coverage:
 # Generate PDF report
 rule generate_report:
     input:
+        rmd_file=f"{pipeline_path}/scripts/generate_report.Rmd",
+        fastp="1-QC/logs/{sample}_fastp.log",
         amrfinder="3-Analysis/amrfinder/{sample}_amrfinder.tsv",
         bakta_gff="3-Analysis/bakta/{sample}/{sample}.gff3",
         virulence="3-Analysis/abricate/{sample}_virulence.tsv",
@@ -389,8 +391,26 @@ rule generate_report:
         coverage_bam="3-Analysis/coverage/{sample}_mapped.sorted.bam"
     output:
         pdf="4-Reports/{sample}_report.pdf"
+    params:
+        analysisdir=os.getcwd()
     shell:
         """
         mkdir -p 4-Reports
-        python3 {pipeline_path}/scripts/generate_report.py . {wildcards.sample} 4-Reports
+        Rscript -e 'dir.create("4-Reports", showWarnings = FALSE, recursive = TRUE); rmarkdown::render(
+            input = "{input.rmd_file}",
+            output_file = file.path("{params.analysisdir}", "{output.pdf}"),
+            knit_root_dir = "{params.analysisdir}",
+            params = list(
+                sample = "{wildcards.sample}",
+                fastp = "{input.fastp}",
+                amrfinder = "{input.amrfinder}",
+                bakta_gff = "{input.bakta_gff}",
+                virulence = "{input.virulence}",
+                plasmids = "{input.plasmids}",
+                mlst = "{input.mlst}",
+                mash = "{input.mash}",
+                quast = "{input.quast}",
+                coverage_bam = "{input.coverage_bam}"
+            )
+        )'
         """

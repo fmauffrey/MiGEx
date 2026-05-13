@@ -24,7 +24,7 @@ if __name__ == "__main__":
     qc = subparser.add_parser('qc', description = "Run quality control on fastq files.")
     assembly = subparser.add_parser('assembly', description = "Assemble genomes from QC filtered reads.")
     analysis = subparser.add_parser('analysis', description = "Run all the selected analyses on assembled genomes.")
-    report = subparser.add_parser('report', description = "Generate the report from analysis results.")
+    report = subparser.add_parser('report', description = "Generate a PDF report for each sample.")
 
     # Arguments for init command
     init.add_argument("-i", type=str, help="directory with fastq files. Files must be in the following format: ID.fastq"
@@ -58,8 +58,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if args.command not in ["init", "download_db", "qc", "assembly", "analysis", "report"]:
-        sys.exit("Commands available: init, download_db, qc, assembly, analysis, report")
+    if args.command not in ["init", "download_db", "qc", "assembly", "analysis", "report", "report"]:
+        sys.exit("Commands available: init, download_db, qc, assembly, analysis, report, report")
 
     if args.command == "init":
         if check_files(args.folder_fastq):
@@ -101,6 +101,15 @@ if __name__ == "__main__":
                     "--use-singularity",
                     "--singularity-args", "--bind /home",
                     "analysis"]
+        
+        elif args.command == "report":
+            command = ["snakemake",
+                    "-s", f"{pipeline_path}/Snakefile",
+                    "-d", args.folder_run,
+                    "--cores", "1",
+                    "--use-singularity",
+                    "--singularity-args", "--bind /home",
+                    "report"]
         
         elif args.command == "report":
             command = ["snakemake",

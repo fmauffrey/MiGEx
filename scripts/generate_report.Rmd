@@ -1,0 +1,26 @@
+---
+title: "MiGEX report"
+author: "MiGEX"
+date: "2026-05-13"
+output: pdf_document
+params:
+  sample: ""
+  fastp: ""
+  amrfinder: ""
+  bakta_gff: ""
+  virulence: ""
+  plasmids: ""
+  mlst: ""
+  mash: ""
+  quast: ""
+  coverage_bam: ""
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+args <-  params$mlst
+print(args)
+```

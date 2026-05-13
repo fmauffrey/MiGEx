@@ -9,4 +9,5 @@ dependencies:
   - pyyaml
   - apptainer
   - bakta
-  - reportlab
+  - r-base
+  - r-rmarkdown
