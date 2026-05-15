@@ -145,7 +145,7 @@ rule unicycler:
         mkdir -p 2-Assembly/unicycler/{wildcards.sample}
         unicycler -1 {input.reads_1} -2 {input.reads_2} \
                   -o 2-Assembly/unicycler/{wildcards.sample} \
-                  --mode {params.mode} -t {threads} > {log} 2>&1
+                  --mode {params.mode} -t {threads} --keep 0 > {log} 2>&1
         """
 
 # Genome assembly quality control
@@ -388,11 +388,12 @@ rule generate_report:
         mlst="3-Analysis/mlst/{sample}_mlst.tsv",
         mash="3-Analysis/mash/{sample}_mash_distances.txt",
         quast="2-Assembly/quast/{sample}/report.tsv",
-        coverage_bam="3-Analysis/coverage/{sample}_mapped.sorted.bam"
+        coverage="3-Analysis/coverage/{sample}_samtools/coverage.txt"
     output:
         pdf="4-Reports/{sample}_report.pdf"
     params:
-        analysisdir=os.getcwd()
+        analysisdir=os.getcwd(),
+        pipeline_path=pipeline_path
     shell:
         """
         mkdir -p 4-Reports
@@ -401,6 +402,7 @@ rule generate_report:
             output_file = file.path("{params.analysisdir}", "{output.pdf}"),
             knit_root_dir = "{params.analysisdir}",
             params = list(
+                pipeline_path = "{params.pipeline_path}",
                 sample = "{wildcards.sample}",
                 fastp = "{input.fastp}",
                 amrfinder = "{input.amrfinder}",
@@ -410,7 +412,7 @@ rule generate_report:
                 mlst = "{input.mlst}",
                 mash = "{input.mash}",
                 quast = "{input.quast}",
-                coverage_bam = "{input.coverage_bam}"
+                coverage = "{input.coverage}"
             )
         )'
         """

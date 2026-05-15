@@ -4,6 +4,7 @@ author: "MiGEX"
 date: "2026-05-13"
 output: pdf_document
 params:
+  pipeline_path: ""
   sample: ""
   fastp: ""
   amrfinder: ""
@@ -13,14 +14,47 @@ params:
   mlst: ""
   mash: ""
   quast: ""
-  coverage_bam: ""
+  coverage: ""
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
 
-```{r}
-args <-  params$mlst
-print(args)
+```{r Packages loading, print=FALSE}
+source(paste0(params$pipeline_path, "/scripts/plots_functions.R"))
+library(ggplot2)
+library(stringr)
+library(ggpubr)
+library(dplyr)
+library(scales)
+library(png)
+library(grid)
+library(cowplot)
 ```
+Table with tools used in the pipeline and their version.  
+Version of the pipeline.
+
+\newpage
+
+# Reads quality after filtering
+Descriptive text to add and explain how data were obtained.
+
+```{r Quality plots, fig.width=10,fig.height=5}
+reads_quality_plot(params$fastp)
+```
+
+What does that mean ?  
+filtered 
+Q20, etc
+
+\newpage
+
+# Assembly quality
+Descriptive text to add and explain how data were obtained.
+
+```{r Assembly Quality plots, fig.width=10,fig.height=5}
+contigs_assembly_plot(params$quast, params$coverage, params$pipeline_path)
+```
+
+What does that mean ?

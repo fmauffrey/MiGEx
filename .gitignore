@@ -2,3 +2,5 @@
 /results
 /scripts/__pycache__
 data/refseq.genomes.k21s1000.msh
+.Rhistory
+.vscode/settings.json
