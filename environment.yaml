@@ -17,3 +17,4 @@ dependencies:
   - r-dplyr
   - r-cowplot
   - r-png
+  - r-jsonlite

@@ -34,7 +34,7 @@ rule analysis:
         expand("3-Analysis/logs/{sample}_abricate_virulence.log", sample=config["samples"]),
         expand("3-Analysis/logs/{sample}_abricate_plasmids.log", sample=config["samples"]),
         expand("3-Analysis/logs/{sample}_mlst.log", sample=config["samples"]),
-        expand("3-Analysis/logs/{sample}_mash.log", sample=config["samples"]),
+        expand("3-Analysis/mash/{sample}_mash_top_hits_details.json", sample=config["samples"]),
         expand("3-Analysis/coverage/{sample}_samtools/coverage.txt", sample=config["samples"])
 
 # Report master rule
@@ -277,6 +277,8 @@ rule mash:
         db=expand("{pipeline_path}/data/refseq.genomes.k21s1000.msh", pipeline_path=pipeline_path)
     output:
         distances="3-Analysis/mash/{sample}_mash_distances.txt"
+    params:
+        hits_number=10
     container:
         "docker://staphb/mash"
     log:
@@ -287,6 +289,33 @@ rule mash:
         """
         mkdir -p 3-Analysis/mash
         mash dist -p {threads} {input.db} {input.assembly} > {output.distances} 2> {log}
+        """
+
+# Extract top hits from Mash output
+rule mash_top_hits:
+    input:
+        distances="3-Analysis/mash/{sample}_mash_distances.txt"
+    output:
+        top_hits="3-Analysis/mash/{sample}_mash_top_hits.txt"
+    params:
+        hits_number=10,
+        pipeline_path=pipeline_path
+    shell:
+        """
+        python3 {params.pipeline_path}/scripts/process_mash_hits.py {input.distances} {output.top_hits} {params.hits_number}
+        """
+
+# Analysis of mash output
+rule mash_analysis:
+    input:
+        top_hits="3-Analysis/mash/{sample}_mash_top_hits.txt"
+    output:
+        top_hits_details="3-Analysis/mash/{sample}_mash_top_hits_details.json"
+    container:
+        "docker://staphb/ncbi-datasets"
+    shell:
+        """
+        datasets summary genome accession $(paste -sd, {input.top_hits}) > {output.top_hits_details}
         """
 
 # Index assembly with bowtie2
@@ -387,6 +416,7 @@ rule generate_report:
         plasmids="3-Analysis/abricate/{sample}_plasmids.tsv",
         mlst="3-Analysis/mlst/{sample}_mlst.tsv",
         mash="3-Analysis/mash/{sample}_mash_distances.txt",
+        mash_top_hits_details="3-Analysis/mash/{sample}_mash_top_hits_details.json",
         quast="2-Assembly/quast/{sample}/report.tsv",
         coverage="3-Analysis/coverage/{sample}_samtools/coverage.txt"
     output:
@@ -411,6 +441,7 @@ rule generate_report:
                 plasmids = "{input.plasmids}",
                 mlst = "{input.mlst}",
                 mash = "{input.mash}",
+                mash_details = "{input.mash_top_hits_details}",
                 quast = "{input.quast}",
                 coverage = "{input.coverage}"
             )

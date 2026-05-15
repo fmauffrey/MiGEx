@@ -173,3 +173,33 @@ contigs_assembly_plot <- function(quast_path, coverage_path, pipeline_path){
   
   final_plot
 }
+
+identification_table <- function(mash_path, mash_details_path){
+  # Extract relevant information from the JSON file and return a table
+  
+  # Top hits identification
+  mash_details_data <- fromJSON(mash_details_path)
+  mash_details_table <- data.frame(
+    "Accession" = mash_details_data$reports$accession,
+    "Identification" = mash_details_data$reports$organism$organism_name,
+    "Tax ID" = mash_details_data$reports$organism$tax_id
+  )
+
+  # Top hits mash results
+  mash_data <- read.csv(mash_path, sep="\t", header = F)
+  
+  pattern <- paste(mash_details_table$Accession, collapse = "|")
+  mash_data_filtered <- mash_data %>%
+    filter(str_detect(V1, pattern)) %>%
+    mutate(V1 = str_extract(V1, pattern)) %>%
+    rename("Accession" = V1,
+           "Mash.distance" = V3,
+           "Mash.p-value" = V4,
+           "Mash.shared.hashes" = V5) %>%
+    select(-V2)
+  
+  final_table <- mash_details_table %>%
+    left_join(mash_data_filtered, by="Accession")
+  
+  final_table
+}

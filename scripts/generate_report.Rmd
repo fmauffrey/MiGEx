@@ -13,6 +13,7 @@ params:
   plasmids: ""
   mlst: ""
   mash: ""
+  mash_details: ""
   quast: ""
   coverage: ""
 ---
@@ -31,6 +32,7 @@ library(scales)
 library(png)
 library(grid)
 library(cowplot)
+library(jsonlite)
 ```
 Table with tools used in the pipeline and their version.  
 Version of the pipeline.
@@ -48,13 +50,22 @@ What does that mean ?
 filtered 
 Q20, etc
 
-\newpage
-
 # Assembly quality
 Descriptive text to add and explain how data were obtained.
 
 ```{r Assembly Quality plots, fig.width=10,fig.height=5}
 contigs_assembly_plot(params$quast, params$coverage, params$pipeline_path)
+```
+
+What does that mean ?
+
+\newpage
+
+# Organism identification
+Descriptive text to add and explain how data were obtained.
+
+```{r Table species identification}
+identification_table(params$mash, params$mash_details)
 ```
 
 What does that mean ?
