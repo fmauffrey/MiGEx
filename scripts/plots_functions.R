@@ -203,3 +203,15 @@ identification_table <- function(mash_path, mash_details_path){
   
   final_table
 }
+
+mlst_table <- function(mlst_path){
+  # Extract MLST analysis information and returns a clean table
+  mlst_table <- read.csv(mlst_path, sep = "\t")
+  
+  alleles <- unlist(str_split(mlst_table$ALLELES, ";"))
+  alleles_table <- data.frame(str_extract_all(alleles, "(?<=\\()\\d*"))
+  colnames(alleles_table) <- str_extract_all(alleles, "^\\w*")
+  
+  list("data" = mlst_table,
+       "table" = alleles_table)
+}

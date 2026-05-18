@@ -70,4 +70,21 @@ identification_table <- identification_table(params$mash, params$mash_details)
 kable(identification_table, align="c", digits = 5)
 ```
 
-What does that mean ?
+What does that mean ?  
+
+\newpage
+
+# MLST analysis
+```{r MLST data loading}
+mlst_table <- mlst_table(params$mlst)
+mlst_data <- mlst_table$data
+```
+
+The genome MLST is reported to be `r mlst_data$ST` with a score of 
+`r mlst_data$SCORE`% (`r mlst_data$STATUS`) using the `r mlst_data$SCHEME` scheme.
+
+```{r MLST analysis table}
+kable(mlst_table$table, align="c")
+```
+
+What does that mean ?  
