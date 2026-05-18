@@ -33,6 +33,7 @@ library(png)
 library(grid)
 library(cowplot)
 library(jsonlite)
+library(knitr)
 ```
 Table with tools used in the pipeline and their version.  
 Version of the pipeline.
@@ -65,7 +66,8 @@ What does that mean ?
 Descriptive text to add and explain how data were obtained.
 
 ```{r Table species identification}
-identification_table(params$mash, params$mash_details)
+identification_table <- identification_table(params$mash, params$mash_details)
+kable(identification_table, align="c", digits = 5)
 ```
 
 What does that mean ?
