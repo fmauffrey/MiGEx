@@ -181,7 +181,7 @@ rule amrfinder:
     shell:
         """
         mkdir -p 3-Analysis/amrfinder
-        amrfinder -n {input.assembly} -o {output.report} -c {params.coverage_min} -i {params.ident_min} --plus \
+        amrfinder -n {input.assembly} -o {output.report} -c {params.coverage_min} -i {params.ident_min} \
             {params.organism} --threads {threads} > {log} 2>&1
         """
 
