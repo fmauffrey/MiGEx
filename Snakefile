@@ -264,11 +264,20 @@ rule mlst:
         "docker://staphb/mlst"
     log:
         "3-Analysis/logs/{sample}_mlst.log"
-    shell:
-        """
-        mkdir -p 3-Analysis/mlst
-        mlst {input.assembly} --full > {output.report} 2> {log}
-        """
+    threads:
+        2
+    run:
+        if params.species == "":
+            shell("""
+            mkdir -p 3-Analysis/mlst
+            mlst {input.assembly} --full --threads {threads} > {output.report} 2> {log}
+            """)
+        else:
+            shell("""
+            mkdir -p 3-Analysis/mlst
+            mlst {input.assembly} --full --scheme "{params.species}" --threads {threads} > {output.report} 2> {log}
+            """)
+        
 
 # Taxonomic confirmation via Mash
 rule mash:
@@ -415,6 +424,7 @@ rule generate_report:
         virulence="3-Analysis/abricate/{sample}_virulence.tsv",
         plasmids="3-Analysis/abricate/{sample}_plasmids.tsv",
         mlst="3-Analysis/mlst/{sample}_mlst.tsv",
+        mlst_log="3-Analysis/logs/{sample}_mlst.log",
         mash="3-Analysis/mash/{sample}_mash_distances.txt",
         mash_top_hits_details="3-Analysis/mash/{sample}_mash_top_hits_details.json",
         quast="2-Assembly/quast/{sample}/report.tsv",
@@ -440,6 +450,7 @@ rule generate_report:
                 virulence = "{input.virulence}",
                 plasmids = "{input.plasmids}",
                 mlst = "{input.mlst}",
+                mlst_log = "{input.mlst_log}",
                 mash = "{input.mash}",
                 mash_details = "{input.mash_top_hits_details}",
                 quast = "{input.quast}",

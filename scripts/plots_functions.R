@@ -215,3 +215,9 @@ mlst_table <- function(mlst_path){
   list("data" = mlst_table,
        "table" = alleles_table)
 }
+
+mlst_log_warning <- function(mlst_log_path){
+  # Extract the warning message of the mlst log file
+  text_log <- readChar(mlst_log_path, file.info(mlst_log_path)$size)
+  warning <- str_extract(text_log, "(?<=WARNING: ).*?(?= )")
+}

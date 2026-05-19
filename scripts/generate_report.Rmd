@@ -12,6 +12,7 @@ params:
   virulence: ""
   plasmids: ""
   mlst: ""
+  mlst_log: ""
   mash: ""
   mash_details: ""
   quast: ""
@@ -72,19 +73,28 @@ kable(identification_table, align="c", digits = 5)
 
 What does that mean ?  
 
-\newpage
-
 # MLST analysis
 ```{r MLST data loading}
 mlst_table <- mlst_table(params$mlst)
 mlst_data <- mlst_table$data
 ```
 
-The genome MLST is reported to be `r mlst_data$ST` with a score of 
-`r mlst_data$SCORE`% (`r mlst_data$STATUS`) using the `r mlst_data$SCHEME` scheme.
+The genome MLST is reported to be **`r mlst_data$ST`** with a score of 
+**`r mlst_data$SCORE`% (`r mlst_data$STATUS`)** using the **`r mlst_data$SCHEME`**
+scheme.
 
 ```{r MLST analysis table}
 kable(mlst_table$table, align="c")
 ```
 
-What does that mean ?  
+```{r MLST warning, results='asis'}
+if (!is.na(mlst_log_warning(params$mlst_log))) {
+  warning_msg <- mlst_log_warning(params$mlst_log)
+  cat(paste("The following WARNING has been raised:", warning_msg))
+}
+```
+
+
+*The scheme used might not be the one fitting the organism species. To force the 
+MLST analysis to use the scheme of your choice, you can put the species code of 
+your choice in the config file. Then delete the mlst folder and rerun the analysis.* 
