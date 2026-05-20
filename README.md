@@ -202,6 +202,10 @@ Contains:
 
 ---
 
+## AMR
+
+Put the list for organism choice. Specify that it is needed to have point mutations.
+
 ## MLST
 
 To force the analysis on a specific scheme, adapt the congif file for one of:

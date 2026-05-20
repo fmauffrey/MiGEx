@@ -1,8 +1,15 @@
 ---
 title: "MiGEX report"
 author: "MiGEX"
-date: "2026-05-13"
-output: pdf_document
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: flatly
+    code_folding: hide
+    self_contained: true
 params:
   pipeline_path: ""
   sample: ""
@@ -35,13 +42,14 @@ library(grid)
 library(cowplot)
 library(jsonlite)
 library(knitr)
+library(kableExtra)
 ```
 Table with tools used in the pipeline and their version.  
 Version of the pipeline.
 
 \newpage
 
-# Reads quality after filtering
+# Reads quality
 Descriptive text to add and explain how data were obtained.
 
 ```{r Quality plots, fig.width=10,fig.height=5}
@@ -73,7 +81,7 @@ kable(identification_table, align="c", digits = 5)
 
 What does that mean ?  
 
-# MLST analysis
+# MLST
 ```{r MLST data loading}
 mlst_table <- mlst_table(params$mlst)
 mlst_data <- mlst_table$data
@@ -94,7 +102,40 @@ if (!is.na(mlst_log_warning(params$mlst_log))) {
 }
 ```
 
-
 *The scheme used might not be the one fitting the organism species. To force the 
 MLST analysis to use the scheme of your choice, you can put the species code of 
 your choice in the config file. Then delete the mlst folder and rerun the analysis.* 
+
+# Antibiotic resistances
+
+```{r AMR message, results='asis'}
+amr_data <- amr_tables(params$amrfinder)
+
+if (is.null(amr_data$resistances) || length(amr_data$resistances) == 0) {
+  cat("No antibiotic resistances were detected.")
+} else {
+  cat("Resistances to the following antibiotics were found:\n\n")
+  resistances <- as.character(unlist(amr_data$resistances))
+  cat(paste0("- ", resistances, collapse = "\n"))
+}
+```
+
+### AMR genes
+```{r AMR table, results='asis'}
+if (!is.null(amr_data$amr_table)){
+  kable(amr_data$amr_table) %>%
+    kable_styling(font_size = 10)
+} else {  
+  cat("No data")
+}
+```
+
+### Point mutations
+```{r Mutations table, results='asis'}
+if (!is.null(amr_data$mutations_table)){
+  kable(amr_data$mutations_table) %>%
+    kable_styling(font_size = 12)
+} else {
+  cat("No data")
+}
+```

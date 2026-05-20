@@ -6,7 +6,7 @@ fastp:
 unicycler:
   mode: "normal"
 amrfinder:
-  organism: ""
+  organism: ""        # Organism for AMRFinder. Leave blank for auto-detection. See "How to" section for more information.
   coverage_min: 0.5
   ident_min: -1
 bakta:

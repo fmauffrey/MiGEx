@@ -40,9 +40,9 @@ rule analysis:
 # Report master rule
 rule report:
     message:
-        "Generate PDF reports for all samples"
+        "Generate HTML reports for all samples"
     input:
-        expand("4-Reports/{sample}_report.pdf", sample=config["samples"])
+        expand("4-Reports/{sample}_report.html", sample=config["samples"])
 
 # Raw reads quality control
 rule fastqc_raw:
@@ -430,7 +430,7 @@ rule generate_report:
         quast="2-Assembly/quast/{sample}/report.tsv",
         coverage="3-Analysis/coverage/{sample}_samtools/coverage.txt"
     output:
-        pdf="4-Reports/{sample}_report.pdf"
+        html="4-Reports/{sample}_report.html"
     params:
         analysisdir=os.getcwd(),
         pipeline_path=pipeline_path
@@ -439,7 +439,7 @@ rule generate_report:
         mkdir -p 4-Reports
         Rscript -e 'dir.create("4-Reports", showWarnings = FALSE, recursive = TRUE); rmarkdown::render(
             input = "{input.rmd_file}",
-            output_file = file.path("{params.analysisdir}", "{output.pdf}"),
+            output_file = file.path("{params.analysisdir}", "{output.html}"),
             knit_root_dir = "{params.analysisdir}",
             params = list(
                 pipeline_path = "{params.pipeline_path}",

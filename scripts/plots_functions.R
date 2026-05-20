@@ -221,3 +221,41 @@ mlst_log_warning <- function(mlst_log_path){
   text_log <- readChar(mlst_log_path, file.info(mlst_log_path)$size)
   warning <- str_extract(text_log, "(?<=WARNING: ).*?(?= )")
 }
+
+amr_tables <- function(amrfinder_path){
+  # Extract and parse information from AMRfinder analysis
+  
+  full_table <- read.csv(amrfinder_path, sep="\t") %>%
+    select(Element.symbol, Element.name, Subtype, Class, Subclass, 
+           X..Identity.to.reference, Closest.reference.name)
+  
+  final_amr_table <- NULL
+  final_mutations_table <- NULL
+  resistances <- NULL
+  
+  amr_table <- full_table %>%
+    filter(Subtype == "AMR")
+  
+  mutations_table <- full_table %>%
+    filter(Subtype %in% c("POINT", "POINT_DISRUPT"))
+  
+  if (nrow(amr_table > 0)){
+    colnames(amr_table) <- c("Gene", "Product", "Resistance type", "Class", 
+                             "Subclass", "Identity to reference", "Closest reference name")
+    final_amr_table <- amr_table
+  }
+  
+  if (nrow(mutations_table > 0)){
+    colnames(mutations_table) <- c("Gene", "Product", "Resistance type", 
+                                   "Class", "Subclass", "Identity to reference", "Closest reference name")
+    final_mutations_table <- mutations_table
+  }
+  
+  if (nrow(full_table) > 0){
+    resistances <- levels(factor(full_table$Subclass))
+  }
+  
+  return(list(amr_table = final_amr_table,
+              mutations_table = final_mutations_table,
+              resistances = resistances))
+}
