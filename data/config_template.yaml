@@ -21,6 +21,6 @@ abricate:
     minCoverage: 90
     minIdentity: 90
 mlst:
-  species: ""  # Leave blank for auto-detection, or specify e.g., "Escherichia coli"
+  organism: ""  # Leave blank for auto-detection, or specify e.g., "Escherichia coli"
 samtools:
   min_quality: 30          # Minimum mapping quality for samtools

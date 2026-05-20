@@ -259,7 +259,7 @@ rule mlst:
     output:
         report="3-Analysis/mlst/{sample}_mlst.tsv"
     params:
-        species=config["mlst"]["species"]
+        organism=config["mlst"]["organism"]
     container:
         "docker://staphb/mlst"
     log:
@@ -267,7 +267,7 @@ rule mlst:
     threads:
         2
     run:
-        if params.species == "":
+        if params.organism == "":
             shell("""
             mkdir -p 3-Analysis/mlst
             mlst {input.assembly} --full --threads {threads} > {output.report} 2> {log}
@@ -275,7 +275,7 @@ rule mlst:
         else:
             shell("""
             mkdir -p 3-Analysis/mlst
-            mlst {input.assembly} --full --scheme "{params.species}" --threads {threads} > {output.report} 2> {log}
+            mlst {input.assembly} --full --scheme "{params.organism}" --threads {threads} > {output.report} 2> {log}
             """)
         
 
