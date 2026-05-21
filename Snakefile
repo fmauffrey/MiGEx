@@ -440,6 +440,7 @@ rule generate_report:
         Rscript -e 'dir.create("4-Reports", showWarnings = FALSE, recursive = TRUE); rmarkdown::render(
             input = "{input.rmd_file}",
             output_file = file.path("{params.analysisdir}", "{output.html}"),
+            output_options = list(css = "{params.pipeline_path}/css/style.css"),
             knit_root_dir = "{params.analysisdir}",
             params = list(
                 pipeline_path = "{params.pipeline_path}",

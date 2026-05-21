@@ -233,6 +233,12 @@ amr_tables <- function(amrfinder_path){
   final_mutations_table <- NULL
   resistances <- NULL
   
+  if (nrow(full_table) > 0){
+    resistances <- data.frame(antibiotic = levels(factor(full_table$Subclass)),
+                                    AMR = rep(0, 1),
+                                    POINT = rep(0, 1))
+  }
+  
   amr_table <- full_table %>%
     filter(Subtype == "AMR")
   
@@ -243,19 +249,44 @@ amr_tables <- function(amrfinder_path){
     colnames(amr_table) <- c("Gene", "Product", "Resistance type", "Class", 
                              "Subclass", "Identity to reference", "Closest reference name")
     final_amr_table <- amr_table
+    
+    for (i in 1:nrow(resistances)){
+      resistances$AMR[i] <- nrow(final_amr_table[final_amr_table$Subclass==resistances$antibiotic[i],])
+    }
   }
   
   if (nrow(mutations_table > 0)){
     colnames(mutations_table) <- c("Gene", "Product", "Resistance type", 
                                    "Class", "Subclass", "Identity to reference", "Closest reference name")
     final_mutations_table <- mutations_table
+    
+    for (i in 1:nrow(resistances)){
+      resistances$POINT[i] <- nrow(final_mutations_table[final_mutations_table$Subclass==resistances$antibiotic[i],])
+    }
   }
   
-  if (nrow(full_table) > 0){
-    resistances <- levels(factor(full_table$Subclass))
+  if (!is.null(resistances)){
+    resistances_list <- c()
+    for (i in 1:nrow(resistances)){
+      terms <- c()
+      if (resistances$AMR[i] == 1){
+        terms <- c(terms, paste(resistances$AMR[i], "AMR gene"))
+      } else if (resistances$AMR[i] > 1){
+        terms <- c(terms, paste(resistances$AMR[i], "AMR genes"))
+      }
+      if (resistances$POINT[i] == 1){
+        terms <- c(terms, paste(resistances$POINT[i], "point mutation"))
+      } else if (resistances$POINT[i] > 1){
+        terms <- c(terms, paste(resistances$POINT[i], "point mutations"))
+      }
+      resistances_list <- c(resistances_list, c(paste0(resistances$antibiotic[i], 
+                                                       " (",
+                                                       paste0(terms, collapse = " and "),
+                                                       ")")))
+    }
   }
   
   return(list(amr_table = final_amr_table,
               mutations_table = final_mutations_table,
-              resistances = resistances))
+              resistances = resistances_list))
 }

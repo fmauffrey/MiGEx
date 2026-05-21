@@ -18,6 +18,5 @@ dependencies:
   - r-cowplot
   - r-png
   - r-jsonlite
-  - tectonic
-
   - r-kableextra
+  - tectonic

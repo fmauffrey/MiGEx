@@ -7,9 +7,12 @@ output:
     toc: true
     toc_float: true
     number_sections: true
-    theme: flatly
+    theme:
+      version: 4
+      bootswatch: flatly
     code_folding: hide
     self_contained: true
+    css: css/style.css
 params:
   pipeline_path: ""
   sample: ""
@@ -60,7 +63,7 @@ What does that mean ?
 filtered 
 Q20, etc
 
-# Assembly quality
+# Assembly metrics
 Descriptive text to add and explain how data were obtained.
 
 ```{r Assembly Quality plots, fig.width=10,fig.height=5}
@@ -72,14 +75,15 @@ What does that mean ?
 \newpage
 
 # Organism identification
-Descriptive text to add and explain how data were obtained.
-
 ```{r Table species identification}
 identification_table <- identification_table(params$mash, params$mash_details)
-kable(identification_table, align="c", digits = 5)
+kable(identification_table, align="c", digits = 5, format = "html", 
+      table.attr = "class='table table-striped table-hover'")
 ```
 
-What does that mean ?  
+*This table presents the top matches between the query genome and the Mash 
+pre-sketched RefSeq archive. Always review the analysis metrics before 
+finalizing any identification.*
 
 # MLST
 ```{r MLST data loading}
@@ -87,12 +91,13 @@ mlst_table <- mlst_table(params$mlst)
 mlst_data <- mlst_table$data
 ```
 
-The genome MLST is reported to be **`r mlst_data$ST`** with a score of 
+The genome MLST is reported to be a ST**`r mlst_data$ST`** with a score of 
 **`r mlst_data$SCORE`% (`r mlst_data$STATUS`)** using the **`r mlst_data$SCHEME`**
 scheme.
 
 ```{r MLST analysis table}
-kable(mlst_table$table, align="c")
+kable(mlst_table$table, align="c", format = "html", 
+      table.attr = "class='table table-striped table-hover'")
 ```
 
 ```{r MLST warning, results='asis'}
@@ -104,7 +109,8 @@ if (!is.na(mlst_log_warning(params$mlst_log))) {
 
 *The scheme used might not be the one fitting the organism species. To force the 
 MLST analysis to use the scheme of your choice, you can put the species code of 
-your choice in the config file. Then delete the mlst folder and rerun the analysis.* 
+your choice in the config file. Then delete the mlst folder and rerun the analysis 
+(see documentation for more details).* 
 
 # Antibiotic resistances
 
@@ -120,22 +126,32 @@ if (is.null(amr_data$resistances) || length(amr_data$resistances) == 0) {
 }
 ```
 
-### AMR genes
-```{r AMR table, results='asis'}
+```{r AMR table}
 if (!is.null(amr_data$amr_table)){
-  kable(amr_data$amr_table) %>%
-    kable_styling(font_size = 10)
-} else {  
-  cat("No data")
+  amr_data$amr_table %>%
+    kbl(caption = "AMR genes found",
+        format = "html", 
+        table.attr = "class='table table-striped table-hover'", 
+        align="c") %>%
+    kable_styling(font_size = 14,
+                  bootstrap_options = c("striped", "hover"))
 }
 ```
 
-### Point mutations
-```{r Mutations table, results='asis'}
+```{r Mutations table}
 if (!is.null(amr_data$mutations_table)){
-  kable(amr_data$mutations_table) %>%
-    kable_styling(font_size = 12)
-} else {
-  cat("No data")
+  amr_data$mutations_table %>%
+    kbl(caption = "Relevant point mutations found",
+        format = "html", 
+        table.attr = "class='table table-striped table-hover'", 
+        align="c") %>%
+    kable_styling(font_size = 14,
+                  bootstrap_options = c("striped", "hover"))
 }
 ```
+
+*Note that these are resistance predictions and may differ from the observed 
+phenotype. Point mutations can only be analysed if the species is specified in 
+the config file (see documentation for details). POINT_DISRUPT refers to point 
+mutations that were not specifically curated but are likely to disrupt genes 
+known to increase resistance when disrupted.*
