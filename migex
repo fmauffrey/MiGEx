@@ -29,6 +29,8 @@ if __name__ == "__main__":
     # Arguments for init command
     init.add_argument("-i", type=str, help="directory with fastq files. Files must be in the following format: ID.fastq"
                              , dest="folder_fastq", required=True, metavar="dir")
+    init.add_argument("--organism", type=str, help="Organism name (e.g., 'Escherichia coli')."
+                             , dest="organism", metavar="str", default="")
     init.add_argument("-o", type=str, help="directory to create for the run", dest="folder_run", required=True, metavar="dir")
     
     # Arguments for download_db command
@@ -63,7 +65,7 @@ if __name__ == "__main__":
 
     if args.command == "init":
         if check_files(args.folder_fastq):
-            create_config(args.folder_fastq, args.folder_run)
+            create_config(args.folder_fastq, args.folder_run, args.organism, pipeline_path)
     
     elif args.command == "download_db":
         if args.mash or args.all:

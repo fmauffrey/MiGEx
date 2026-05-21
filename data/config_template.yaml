@@ -6,11 +6,11 @@ fastp:
 unicycler:
   mode: "normal"
 amrfinder:
-  organism: ""        # Organism for AMRFinder. Leave blank for auto-detection. See "How to" section for more information.
+  organism: ""        # Organism for AMRFinder. Leave blank for auto-detection.
   coverage_min: 0.5
   ident_min: -1
 bakta:
-  database: "data/baktadb" # Path to Bakta database. Default: data/baktadb_full or data/baktadb_light (if downloaded via migex download_db --bakta). Specify full path if using custom location.
+  database: "data/baktadb" # Path to Bakta database.
 abricate:
   virulence:
     database: "vfdb"      # virulence factor database
@@ -21,6 +21,6 @@ abricate:
     minCoverage: 90
     minIdentity: 90
 mlst:
-  organism: ""  # Leave blank for auto-detection, or specify e.g., "Escherichia coli"
+  organism: ""  # Leave blank for auto-detection
 samtools:
   min_quality: 30          # Minimum mapping quality for samtools

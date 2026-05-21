@@ -1,0 +1,170 @@
+- species: Acinetobacter baumannii
+  amrfinder: Acinetobacter_baumannii
+  mlst: abaumannii
+  Reference_genome: ASM903584v1
+  Reference_genome_size: 3999136
+- species: Bacillus subtilis
+  amrfinder: null
+  mlst: bsubtilis
+  Reference_genome: ASM904v1
+  Reference_genome_size: 4215606
+- species: Bordetella pertussis
+  amrfinder: Bordetella_pertussis
+  mlst: bordetella_3
+  Reference_genome: ASM400897v1
+  Reference_genome_size: 4088701
+- species: Burkholderia cepacia
+  amrfinder: Burkholderia_cepacia
+  mlst: null
+  Reference_genome: ASM958623v1
+  Reference_genome_size: 8366868
+- species: Burkholderia mallei
+  amrfinder: Burkholderia_mallei
+  mlst: null
+  Reference_genome: ASM3395606v1
+  Reference_genome_size: 5834748
+- species: Burkholderia pseudomallei
+  amrfinder: Burkholderia_pseudomallei
+  mlst: null
+  Reference_genome: ASM3029725v1
+  Reference_genome_size: 7081111
+- species: Campylobacter coli
+  amrfinder: Campylobacter
+  mlst: campylobacter
+  Reference_genome: ASM973039v1
+  Reference_genome_size: 1716536
+- species: Campylobacter jejuni
+  amrfinder: Campylobacter
+  mlst: campylobacter
+  Reference_genome: ASM908v1
+  Reference_genome_size: 1641481
+- species: Citrobacter freundii
+  amrfinder: Citrobacter_freundii
+  mlst: cfreundii
+  Reference_genome: MSB1_1H
+  Reference_genome_size: 5171093
+- species: Clostridioides difficile
+  amrfinder: Clostridioides_difficile
+  mlst: cdifficile
+  Reference_genome: ASM1888508v1
+  Reference_genome_size: 4095894
+- species: Corynebacterium diphtheriae
+  amrfinder: Corynebacterium_diphtheriae
+  mlst: cdiphtheriae
+  Reference_genome: NCTC11397
+  Reference_genome_size: 2463666
+- species: Enterobacter asburiae
+  amrfinder: Enterobacter_asburiae
+  mlst: null
+  Reference_genome: ASM703580v1
+  Reference_genome_size: 4768325
+- species: Enterobacter cloacae
+  amrfinder: Enterobacter_cloacae
+  mlst: ecloacae
+  Reference_genome: AI2999v1_cpp
+  Reference_genome_size: 5023439
+- species: Enterococcus faecalis
+  amrfinder: Enterococcus_faecalis
+  mlst: efaecalis
+  Reference_genome: Ente_faec_T5_V1
+  Reference_genome_size: 2900000
+- species: Enterococcus faecium
+  amrfinder: Enterococcus_faecium
+  mlst: efaecium
+  Reference_genome: ASM973400v2
+  Reference_genome_size: 2919198
+- species: Escherichia coli
+  amrfinder: Escherichia
+  mlst: ecoli
+  Reference_genome: ASM584v2
+  Reference_genome_size: 4641652
+- species: Haemophilus influenzae
+  amrfinder: Haemophilus_influenzae
+  mlst: hinfluenzae
+  Reference_genome: ASM2073604v1
+  Reference_genome_size: 1890662
+- species: Helicobacter pylori
+  amrfinder: null
+  mlst: helicobacter
+  Reference_genome: ASM2599845v1
+  Reference_genome_size: 1696601
+- species: Klebsiella oxytoca
+  amrfinder: Klebsiella_oxytoca
+  mlst: koxytoca
+  Reference_genome: 45889_C01
+  Reference_genome_size: 5857964
+- species: Klebsiella pneumoniae
+  amrfinder: Klebsiella_pneumoniae
+  mlst: klebsiella
+  Reference_genome: ASM24018v2
+  Reference_genome_size: 5682322
+- species: Neisseria gonorrhoeae
+  amrfinder: Neisseria_gonorrhoeae
+  mlst: neisseria
+  Reference_genome: ASM1303007v1
+  Reference_genome_size: 2171755
+- species: Neisseria meningitidis
+  amrfinder: Neisseria_meningitidis
+  mlst: neisseria
+  Reference_genome: ASM2286964v1
+  Reference_genome_size: 2181327
+- species: Pseudomonas aeruginosa
+  amrfinder: Pseudomonas_aeruginosa
+  mlst: paeruginosa
+  Reference_genome: ASM676v1
+  Reference_genome_size: 6264404
+- species: Salmonella enterica
+  amrfinder: Salmonella
+  mlst: salmonella
+  Reference_genome: ASM694v2
+  Reference_genome_size: 4951383
+- species: Serratia marcescens
+  amrfinder: Serratia_marcescens
+  mlst: serratia
+  Reference_genome: ASM3029173v1
+  Reference_genome_size: 5160776
+- species: Shigella sonnei
+  amrfinder: Escherichia
+  mlst: ecoli
+  Reference_genome: ASM295039v1
+  Reference_genome_size: 4994001
+- species: Staphylococcus aureus
+  amrfinder: Staphylococcus_aureus
+  mlst: saureus
+  Reference_genome: ASM1342v1
+  Reference_genome_size: 2821361
+- species: Staphylococcus pseudintermedius
+  amrfinder: Staphylococcus_pseudintermedius
+  mlst: spseudintermedius
+  Reference_genome: ASM3404277v1
+  Reference_genome_size: 2577173
+- species: Streptococcus agalactiae
+  amrfinder: Streptococcus_agalactiae
+  mlst: sagalactiae
+  Reference_genome: ASM155203v1
+  Reference_genome_size: 2079123
+- species: Streptococcus pneumoniae
+  amrfinder: Streptococcus_pneumoniae
+  mlst: spneumoniae
+  Reference_genome: NCTC7465
+  Reference_genome_size: 2110968
+- species: Streptococcus pyogenes
+  amrfinder: Streptococcus_pyogenes
+  mlst: spyogenes
+  Reference_genome: 41965_F01
+  Reference_genome_size: 1746380
+- species: Vibrio cholerae
+  amrfinder: Vibrio_cholerae
+  mlst: vcholerae
+  Reference_genome: ASM836960v1
+  Reference_genome_size: 4138412
+- species: Vibrio parahaemolyticus
+  amrfinder: Vibrio_parahaemolyticus
+  mlst: vparahaemolyticus
+  Reference_genome: ASM19609v1
+  Reference_genome_size: 5165770
+- species: Vibrio vulnificus
+  amrfinder: Vibrio_vulnificus
+  mlst: vvulnificus
+  Reference_genome: ASM222426v1
+  Reference_genome_size: 5007160

@@ -21,7 +21,7 @@ def check_files(folder):
     return True
 
 
-def create_config(folder_fastq, folder_run):
+def create_config(folder_fastq, folder_run, organism, pipeline_path):
     """ Create a config file for the run """
 
     # Load the configuration file template
@@ -44,6 +44,17 @@ def create_config(folder_fastq, folder_run):
 
     # Write the config file with the new information
     config_file = {"path": samples_folder_path, **config_template, "samples": validated_samples}
+
+    # Modify organism information for AMRFinder and MLST
+    if organism:
+        organisms_database = yaml.safe_load(open(f"{pipeline_path}/data/organisms.yaml", "r"))
+        for entry in organisms_database:
+            if entry["species"].lower() == organism.lower():
+                config_file["amrfinder"]["organism"] = entry["amrfinder"]
+                config_file["mlst"]["organism"] = entry["mlst"]
+                break
+        else:
+            print(f"Warning: Organism '{organism}' not found in organisms database. AMRFinder and MLST will be run with auto-detection.")
 
     # Save new configuration file
     try:
