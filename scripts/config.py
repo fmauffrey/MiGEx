@@ -5,7 +5,6 @@ import shutil
 from pathlib import Path
 import re
 import urllib.request
-import tarfile
 
 def check_files(folder):
     """ Verify if fastq files are present in the specified folder """

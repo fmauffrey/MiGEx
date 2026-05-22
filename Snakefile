@@ -28,10 +28,10 @@ rule analysis:
     message: 
         "Analysis of assembled genomes"
     input:
-        expand("3-Analysis/logs/{sample}_amrfinder.log", sample=config["samples"]),
-        expand("3-Analysis/logs/{sample}_abricate_virulence.log", sample=config["samples"]),
-        expand("3-Analysis/logs/{sample}_abricate_plasmids.log", sample=config["samples"]),
-        expand("3-Analysis/logs/{sample}_mlst.log", sample=config["samples"]),
+        expand("3-Analysis/amrfinder/{sample}.log", sample=config["samples"]),
+        expand("3-Analysis/abricate/{sample}_virulence.log", sample=config["samples"]),
+        expand("3-Analysis/abricate/{sample}_plasmids.log", sample=config["samples"]),
+        expand("3-Analysis/mlst/{sample}.log", sample=config["samples"]),
         expand("3-Analysis/mash/{sample}_mash_top_hits_details.json", sample=config["samples"]),
         expand("3-Analysis/coverage/{sample}_samtools/coverage.txt", sample=config["samples"])
 
@@ -53,7 +53,7 @@ rule fastqc_raw:
     container: 
         "docker://staphb/fastqc"
     log: 
-        "1-QC/logs/{sample}_fastqc_raw.log"
+        "1-QC/FASTQC_raw/{sample}.log"
     shell:
         """
         mkdir -p 1-QC/FASTQC_raw
@@ -78,7 +78,7 @@ rule fastp:
     container: 
         "docker://staphb/fastp"
     log: 
-        "1-QC/logs/{sample}_fastp.log"
+        "1-QC/fastp/{sample}.log"
     shell:
         """
         mkdir -p 1-QC/fastp
@@ -101,7 +101,7 @@ rule fastqc_filtered:
     container: 
         "docker://staphb/fastqc"
     log: 
-        "1-QC/logs/{sample}_fastqc_filtered.log"
+        "1-QC/FASTQC_filtered/{sample}_filtered.log"
     shell:
         """
         mkdir -p 1-QC/FASTQC_filtered
@@ -120,7 +120,7 @@ rule unicycler:
     container: 
         "docker://staphb/unicycler"
     log: 
-        "2-Assembly/logs/{sample}_unicycler.log"
+        "2-Assembly/unicycler/{sample}.log"
     threads:
         6
     shell:
@@ -158,7 +158,7 @@ rule amrfinder:
     container:
         "docker://staphb/ncbi-amrfinderplus"
     log:
-        "3-Analysis/logs/{sample}_amrfinder.log"
+        "3-Analysis/amrfinder/{sample}.log"
     threads:
         4
     shell:
@@ -181,7 +181,7 @@ rule abricate_virulence:
     container:
         "docker://staphb/abricate"
     log:
-        "3-Analysis/logs/{sample}_abricate_virulence.log"
+        "3-Analysis/abricate/{sample}_virulence.log"
     threads:
         4
     shell:
@@ -205,7 +205,7 @@ rule abricate_plasmids:
     container:
         "docker://staphb/abricate"
     log:
-        "3-Analysis/logs/{sample}_abricate_plasmids.log"
+        "3-Analysis/abricate/{sample}_plasmids.log"
     threads:
         4
     shell:
@@ -227,7 +227,7 @@ rule mlst:
     container:
         "docker://staphb/mlst"
     log:
-        "3-Analysis/logs/{sample}_mlst.log"
+        "3-Analysis/mlst/{sample}.log"
     threads:
         2
     run:
@@ -255,7 +255,7 @@ rule mash:
     container:
         "docker://staphb/mash"
     log:
-        "3-Analysis/logs/{sample}_mash.log"
+        "3-Analysis/mash/{sample}.log"
     threads:
         4
     shell:
@@ -305,7 +305,7 @@ rule bowtie2_index:
     container:
         "docker://staphb/bowtie2"
     log:
-        "3-Analysis/logs/{sample}_bowtie2_index.log"
+        "3-Analysis/coverage/{sample}_bowtie2_index.log"
     shell:
         """
         bowtie2-build {input.assembly} 2-Assembly/unicycler/{wildcards.sample}/assembly > {log} 2>&1
@@ -327,7 +327,7 @@ rule bowtie2_map:
     container:
         "docker://staphb/bowtie2"
     log:
-        "3-Analysis/logs/{sample}_bowtie2_map.log"
+        "3-Analysis/coverage/{sample}_bowtie2_map.log"
     threads:
         4
     shell:
@@ -350,7 +350,7 @@ rule samtools_sort:
     container:
         "docker://staphb/samtools"
     log:
-        "3-Analysis/logs/{sample}_samtools_sort.log"
+        "3-Analysis/coverage/{sample}_samtools_sort.log"
     threads:
         2
     shell:
@@ -371,7 +371,7 @@ rule samtools_coverage:
     container:
         "docker://staphb/samtools"
     log:
-        "3-Analysis/logs/{sample}_samtools.log"
+        "3-Analysis/coverage/{sample}_samtools.log"
     shell:
         """
         mkdir -p 3-Analysis/coverage/{wildcards.sample}_samtools
@@ -387,7 +387,7 @@ rule generate_report:
         virulence="3-Analysis/abricate/{sample}_virulence.tsv",
         plasmids="3-Analysis/abricate/{sample}_plasmids.tsv",
         mlst="3-Analysis/mlst/{sample}_mlst.tsv",
-        mlst_log="3-Analysis/logs/{sample}_mlst.log",
+        mlst_log="3-Analysis/mlst/{sample}.log",
         mash="3-Analysis/mash/{sample}_mash_distances.txt",
         mash_top_hits_details="3-Analysis/mash/{sample}_mash_top_hits_details.json",
         quast="2-Assembly/quast/{sample}/report.tsv",

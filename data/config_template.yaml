@@ -12,8 +12,6 @@ amrfinder:
   organism: ""        # Organism for AMRFinder. Leave blank for auto-detection.
   coverage_min: 0.5
   ident_min: -1
-bakta:
-  database: "" # Path to Bakta database.
 abricate:
   virulence:
     database: "vfdb"      # virulence factor database

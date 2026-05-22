@@ -76,12 +76,11 @@ message <- compare_to_reference(params$quast, params$reference_genome_id, params
 cat(message)
 ```
 
-
 What does that mean ?
 
 \newpage
 
-# Organism identification
+# Identification
 ```{r Table species identification}
 identification_table <- identification_table(params$mash, params$mash_details)
 kable(identification_table, align="c", digits = 5, format = "html", 
@@ -120,7 +119,6 @@ your choice in the config file. Then delete the mlst folder and rerun the analys
 (see documentation for more details).* 
 
 # Antibiotic resistances
-
 ```{r AMR message, results='asis'}
 amr_data <- amr_tables(params$amrfinder)
 
