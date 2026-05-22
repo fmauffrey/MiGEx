@@ -290,3 +290,27 @@ amr_tables <- function(amrfinder_path){
               mutations_table = final_mutations_table,
               resistances = resistances_list))
 }
+
+compare_to_reference <- function(quast_path, reference_id, reference_length){
+  quast <- read.csv(quast_path, sep="\t")
+  assembly_length <- as.numeric(quast[quast$Assembly=="Total length",2])
+  reference_length <- as.numeric(reference_length)
+  
+  ratio <- round(assembly_length/reference_length, 2)
+  
+  if (ratio >= 0.95 && ratio <= 1.05){
+    message <- paste0("The assembly length **is close** to the reference length (",
+                      reference_id, ") by a ratio of ", ratio, ".")
+  } else if (ratio > 1.05 && ratio <= 1.2){
+    message <- paste0("The assembly length **is slightly higher** compared to the reference (",
+                      reference_id, ") by a ratio of **", ratio, "**.")
+  } else if (ratio >= 0.8 && ratio < 0.95){
+    message <- paste0("The assembly length **is slightly lower** compared to the reference (",
+                      reference_id, ") by a ratio of **", ratio, "**.")
+  } else {
+    message <- paste0("The assembly length **differs** from to the reference length (",
+                      reference_id, ") by a ratio of **", ratio, "**.")
+  }
+  
+  return(message)
+}

@@ -2,17 +2,17 @@
 
 import argparse
 from inspect import Arguments
-import os
 import sys
 from subprocess import run
 from scripts.config import *
+import pathlib
 
 """ Wrapper for the MiGEx pipeline """
 
 
 if __name__ == "__main__":
     # Define variables
-    pipeline_path = os.path.dirname(sys.argv[0])
+    pipeline_path = pathlib.Path(__file__).parent.resolve()
 
     # Create argument parser
     parser = argparse.ArgumentParser(description="Microbial Genome Explorer (MiGEx) - A pipeline for microbial genome assembly and analysis from short reads.")
@@ -35,9 +35,6 @@ if __name__ == "__main__":
     
     # Arguments for download_db command
     download_db.add_argument("--mash", action="store_true", help="Download Mash reference database")
-    download_db.add_argument("--bakta", type=str, choices=["light", "full"], 
-                           metavar="VARIANT", help="Download Bakta database (light or full)")
-    download_db.add_argument("--all", action="store_true", help="Download all available databases")
     
     # Arguments for qc command
     qc.add_argument("-i", type=str, help="directory of the run.", dest="folder_run", required=True, metavar="dir")
@@ -68,12 +65,14 @@ if __name__ == "__main__":
             create_config(args.folder_fastq, args.folder_run, args.organism, pipeline_path)
     
     elif args.command == "download_db":
-        if args.mash or args.all:
-            download_mash_database(pipeline_path)
-        if args.bakta:
-            download_bakta_database(pipeline_path, args.bakta)
-        if not (args.mash or args.bakta or args.all):
-            print("Please specify --mash, --bakta [light|full], or --all to download databases")
+        if args.mash:
+            if not pathlib.Path(f"{pipeline_path}/data/refseq.genomes.k21s1000.msh").exists(): 
+                download_mash_database(pipeline_path)
+            else:
+                print("Mash database already exists. Skipping download.")
+
+        if not (args.mash or args.bakta):
+            print("Please specify --mash")
             sys.exit(1)
 
     else:

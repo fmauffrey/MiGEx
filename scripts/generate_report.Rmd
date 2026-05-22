@@ -18,7 +18,6 @@ params:
   sample: ""
   fastp: ""
   amrfinder: ""
-  bakta_gff: ""
   virulence: ""
   plasmids: ""
   mlst: ""
@@ -27,6 +26,8 @@ params:
   mash_details: ""
   quast: ""
   coverage: ""
+  reference_genome_id: ""
+  reference_genome_length: ""
 ---
 
 ```{r setup, include=FALSE}
@@ -70,6 +71,12 @@ Descriptive text to add and explain how data were obtained.
 contigs_assembly_plot(params$quast, params$coverage, params$pipeline_path)
 ```
 
+```{r Comparison with reference, results='asis'}
+message <- compare_to_reference(params$quast, params$reference_genome_id, params$reference_genome_length)
+cat(message)
+```
+
+
 What does that mean ?
 
 \newpage
@@ -91,7 +98,7 @@ mlst_table <- mlst_table(params$mlst)
 mlst_data <- mlst_table$data
 ```
 
-The genome MLST is reported to be a ST**`r mlst_data$ST`** with a score of 
+The genome MLST is reported to be a **ST`r mlst_data$ST`** with a score of 
 **`r mlst_data$SCORE`% (`r mlst_data$STATUS`)** using the **`r mlst_data$SCHEME`**
 scheme.
 

@@ -114,6 +114,17 @@ All reads should be placed in the same input directory.
 
 ---
 
+# Initiate an analysis
+
+The first thing to do to run the pipeline is to run
+```text
+migex init -i [folder] -o [run_folder] --organism [name]
+```
+
+The list of organisms available is available here. This is meant to facilitate the completion of 
+the config.file. Only most common organisms are listed. Other Options are available for mlst. See 
+the mlst documentation for available values. This can then be changed manually in the config file.
+
 # Configuration
 
 The pipeline uses a `config.yaml` file.
@@ -207,52 +218,6 @@ Contains:
 Put the list for organism choice. Specify that it is needed to have point mutations.
 
 ## MLST
-
-To force the analysis on a specific scheme, adapt the congif file for one of:
-
-|                               |                           |                           |                           |
-| ----------------------------- | ------------------------- | ------------------------- | ------------------------- |
-| aactinomycetemcomitans        | abaumannii                | abaumannii_2              | achromobacter             |
-| aeromonas                     | aparagallinarum           | aphagocytophilum          | arcobacter                |
-| bbacilliformis                | bcc                       | bcereus                   | bfragilis                 |
-| bhenselae                     | blicheniformis_14         | bordetella_3              | borrelia                  |
-| bpseudomallei                 | brachyspira               | brachyspira_2             | brachyspira_3             |
-| brachyspira_4                 | brachyspira_5             | brucella                  | bsubtilis                 |
-| bwashoensis                   | campylobacter             | campylobacter_nonjejuni   | campylobacter_nonjejuni_2 |
-| campylobacter_nonjejuni_3     | campylobacter_nonjejuni_4 | campylobacter_nonjejuni_5 | campylobacter_nonjejuni_6 |
-| campylobacter_nonjejuni_7     | campylobacter_nonjejuni_8 | campylobacter_nonjejuni_9 | cbotulinum                |
-| cdifficile                    | cdiphtheriae              | cfreundii                 | chlamydiales              |
-| cmaltaromaticum               | cperfringens              | cronobacter               | csepticum                 |
-| diphtheria_3                  | dnodosus                  | ecloacae                  | ecoli                     |
-| ecoli_achtman_4               | edwardsiella              | efaecalis                 | efaecium                  |
-| fpsychrophilum                | gallibacterium            | geotrichum                | halobacteria              |
-| hcinaedi                      | helicobacter              | hinfluenzae               | hparasuis                 |
-| hsuis                         | kaerogenes                | kingella                  | klebsiella                |
-| koxytoca                      | leptospira                | leptospira_2              | leptospira_3              |
-| lgarvieae                     | liberibacter              | listeria_2                | llactis_phage             |
-| lsalivarius                   | mabscessus                | magalactiae               | mamphoriforme             |
-| manserisalpingitidis          | mbovis                    | mbovis_2                  | mcanis                    |
-| mcaseolyticus                 | mcatarrhalis_achtman_6    | mflocculare               | mgallisepticum            |
-| mgallisepticum_2              | mgenitalium               | mhaemolytica              | mhominis                  |
-| mhominis_3                    | mhyopneumoniae            | mhyorhinis                | mhyosynoviae              |
-| miowae                        | mplutonius                | mpneumoniae               | msciuri                   |
-| msynoviae                     | mycobacteria_2            | neisseria                 | oralstrep                 |
-| orhinotracheale               | otsutsugamushi            | pacnes_3                  | paeruginosa               |
-| pdamselae                     | pfluorescens              | pgingivalis               | plarvae                   |
-| pmultocida                    | pmultocida_2              | ppentosaceus              | pputida                   |
-| proteus                       | providencia               | psalmonis                 | ranatipestifer            |
-| rhodococcus                   | sagalactiae               | salmonella                | saureus                   |
-| sbsec                         | scanis                    | schromogenes              | sdysgalactiae             |
-| senterica_achtman_2           | sepidermidis              | serratia                  | sgallolyticus             |
-| shaemolyticus                 | shewanella                | shominis                  | siniae                    |
-| sinorhizobium                 | smaltophilia              | smitis                    | spneumoniae               |
-| spseudintermedius             | spyogenes                 | ssuis                     | staphlugdunensis          |
-| sthermophilus                 | streptomyces              | streptothermophilus       | suberis                   |
-| szooepidemicus                | taylorella                | tenacibaculum             | tpallidum                 |
-| tpyogenes                     | tvaginalis                | ureaplasma                | vcholerae                 |
-| vcholerae_2                   | vibrio                    | vparahaemolyticus         | vtapetis                  |
-| vvulnificus                   | wolbachia                 | xfastidiosa               | yersinia                  |
-| ypseudotuberculosis_achtman_3 | yruckeri                  |                           |                           |
 
 Leave blank if you don't know the species sequenced. The auto mode will select the most appropriate organism. If the result of the identication does not match with the automatically selected organism, you can modify the config file with the appropriate organism, delete the report and the mlst folder and rerun the analysis. Only the mlst analysis will be performed.
 

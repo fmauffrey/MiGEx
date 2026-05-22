@@ -16,21 +16,19 @@ rule qc:
         "Quality control and filtering of raw reads"
     input:
         expand("1-QC/FASTQC_raw/{sample}_1_fastqc.zip", sample=config["samples"]),
-        expand("1-QC/FASTQC_filtered/{sample}_1.filtered_fastqc.zip", sample=config["samples"]),
-        "1-QC/qc_report.csv"
+        expand("1-QC/FASTQC_filtered/{sample}_1.filtered_fastqc.zip", sample=config["samples"])
 
 rule assembly:
     message: 
         "Genome assembly from filtered reads"
     input:
-        expand("2-Assembly/logs/{sample}_quast.log", sample=config["samples"])
+        expand("2-Assembly/quast/{sample}/report.txt", sample=config["samples"])
 
 rule analysis:
     message: 
         "Analysis of assembled genomes"
     input:
         expand("3-Analysis/logs/{sample}_amrfinder.log", sample=config["samples"]),
-        expand("3-Analysis/logs/{sample}_bakta.log", sample=config["samples"]),
         expand("3-Analysis/logs/{sample}_abricate_virulence.log", sample=config["samples"]),
         expand("3-Analysis/logs/{sample}_abricate_plasmids.log", sample=config["samples"]),
         expand("3-Analysis/logs/{sample}_mlst.log", sample=config["samples"]),
@@ -110,21 +108,6 @@ rule fastqc_filtered:
         fastqc -o 1-QC/FASTQC_filtered {input.reads_1} {input.reads_2} 2> {log}
         """
 
-# qc_report
-rule qc_report:
-    input:
-        fastqc_raw_1="1-QC/FASTQC_raw/{sample}_1_fastqc.zip",
-        fastqc_raw_2="1-QC/FASTQC_raw/{sample}_2_fastqc.zip",
-        filter_json="1-QC/fastp/{sample}_fastp.json",
-        fastqc_filtered_1="1-QC/FASTQC_filtered/{sample}_1.filtered_fastqc.zip",
-        fastqc_filtered_2="1-QC/FASTQC_filtered/{sample}_2.filtered_fastqc.zip"
-    output:
-        report="1-QC/qc_report.csv"
-    shell:
-        """
-        scripts/qc_report.py {fastqc_raw_1} {fastqc_raw_2} {filter_json} {fastqc_filtered_1} {fastqc_filtered_2} {output.report}
-        """
-
 # Genome assembly
 rule unicycler:
     input:
@@ -139,7 +122,7 @@ rule unicycler:
     log: 
         "2-Assembly/logs/{sample}_unicycler.log"
     threads:
-        4
+        6
     shell:
         """
         mkdir -p 2-Assembly/unicycler/{wildcards.sample}
@@ -183,25 +166,6 @@ rule amrfinder:
         mkdir -p 3-Analysis/amrfinder
         amrfinder -n {input.assembly} -o {output.report} -c {params.coverage_min} -i {params.ident_min} \
             {params.organism} --threads {threads} > {log} 2>&1
-        """
-
-# Annotation Bakta
-rule bakta:
-    input:
-        assembly="2-Assembly/unicycler/{sample}/assembly.fasta"
-    output:
-        gff="3-Analysis/bakta/{sample}/{sample}.gff3"
-    params:
-        database=config["bakta"]["database"]
-    log:
-        "3-Analysis/logs/{sample}_bakta.log"
-    threads:
-        4
-    shell:
-        """
-        mkdir -p 3-Analysis/bakta/{wildcards.sample}
-        bakta --output 3-Analysis/bakta/{wildcards.sample} --db {params.database} \
-              --prefix {wildcards.sample} --threads {threads} {input.assembly} --force > {log} 2>&1
         """
 
 # Virulence factors detection Abricate
@@ -420,7 +384,6 @@ rule generate_report:
         rmd_file=f"{pipeline_path}/scripts/generate_report.Rmd",
         fastp="1-QC/logs/{sample}_fastp.log",
         amrfinder="3-Analysis/amrfinder/{sample}_amrfinder.tsv",
-        bakta_gff="3-Analysis/bakta/{sample}/{sample}.gff3",
         virulence="3-Analysis/abricate/{sample}_virulence.tsv",
         plasmids="3-Analysis/abricate/{sample}_plasmids.tsv",
         mlst="3-Analysis/mlst/{sample}_mlst.tsv",
@@ -433,7 +396,9 @@ rule generate_report:
         html="4-Reports/{sample}_report.html"
     params:
         analysisdir=os.getcwd(),
-        pipeline_path=pipeline_path
+        pipeline_path=pipeline_path,
+        reference_genome_id=config["reference_genome"]["id"],
+        reference_genome_length=config["reference_genome"]["size"]
     shell:
         """
         mkdir -p 4-Reports
@@ -447,7 +412,6 @@ rule generate_report:
                 sample = "{wildcards.sample}",
                 fastp = "{input.fastp}",
                 amrfinder = "{input.amrfinder}",
-                bakta_gff = "{input.bakta_gff}",
                 virulence = "{input.virulence}",
                 plasmids = "{input.plasmids}",
                 mlst = "{input.mlst}",
@@ -455,7 +419,9 @@ rule generate_report:
                 mash = "{input.mash}",
                 mash_details = "{input.mash_top_hits_details}",
                 quast = "{input.quast}",
-                coverage = "{input.coverage}"
+                coverage = "{input.coverage}",
+                reference_genome_id = "{params.reference_genome_id}",
+                reference_genome_length = "{params.reference_genome_length}"
             )
         )'
         """

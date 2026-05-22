@@ -1,3 +1,6 @@
+reference_genome:
+  id: ""
+  size: ""
 fastp:
   qualified_quality_phred: 15
   unqualified_percent_limit: 40
@@ -10,7 +13,7 @@ amrfinder:
   coverage_min: 0.5
   ident_min: -1
 bakta:
-  database: "data/baktadb" # Path to Bakta database.
+  database: "" # Path to Bakta database.
 abricate:
   virulence:
     database: "vfdb"      # virulence factor database
